@@ -1,0 +1,82 @@
+.mdf_shortcode_skin_popup{
+
+}
+
+.mdf_shortcode_skin_popup .mdf_widget_found_count{
+    margin-bottom: 5px;
+    color: brown;
+}
+
+.mdf_shortcode_skin_popup .mdf_input_container_block{
+    float: left;
+    width: 100%;
+    margin-left: 2px;
+    padding: 0;
+
+}
+
+.mdf_shortcode_skin_popup .mdf_one_moment_txt{
+    height: auto;
+}
+
+.mdf_shortcode_skin_popup .mdf_input_container_taxonomies .mdf_input_container{
+    float: none;
+    width: 99%;
+    height: auto !important;
+}
+
+
+.mdf_shortcode_skin_popup .mdf_shortcode_submit_button{
+    float: left;
+    margin-left: 15px;
+    margin-top: 40px;    
+}
+
+.mdf_shortcode_skin_popup .mdf_shortcode_submit_button input{
+    width: 95px !important;
+}
+
+.mdf_shortcode_skin_popup .mdf_shortcode_reset_button{
+    float: left;
+    margin-left: 15px;
+    margin-top: 3px;
+}
+
+.mdf_shortcode_skin_popup.mdf_shortcode_reset_button input{
+    width: 95px !important;
+}
+
+
+.mdf_shortcode_skin_popup .mdf_input_container_block {
+    float: left;
+    margin-left: 2px;
+    min-height: 150px;
+    padding: 11px;
+    width: 24%;
+}
+
+.mdf_shortcode_skin_popup select{
+    width: 100% !important;
+    line-height: 21px !important;
+    margin-bottom: 3px !important;
+    padding: 4px !important;
+    height: auto !important;
+    background: #fff;
+}
+
+
+.mdf_shortcode_skin_popup .mdf_input_container {
+    text-align: left;
+}
+.mdf_shortcode_skin_popup .mdf_input_container {
+    padding: 0 5px 5px 0;
+    width: 100%;
+}
+
+
+.mdf_shortcode_skin_popup input[type="text"] {
+    margin-bottom: 3px !important;
+}
+
+
+

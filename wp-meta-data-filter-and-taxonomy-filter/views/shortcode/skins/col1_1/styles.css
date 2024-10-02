@@ -1,0 +1,73 @@
+.mdf_shortcode_skin_col1_1{
+    -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+    box-shadow:inset 0px 1px 0px 0px #ffffff;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f9f9f9), color-stop(1, #e9e9e9) );
+    background:-moz-linear-gradient( center top, #f9f9f9 5%, #e9e9e9 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e9e9e9');
+    background-color:#f9f9f9;    
+    padding: 9px;
+    margin-bottom: 15px;
+    border:1px solid #dcdcdc;
+    color:#666666;
+    font-family:Arial;
+    font-size:13px;
+}
+
+.mdf_shortcode_skin_col1_1 .mdf_widget_found_count{
+    margin-left: 13px;
+    color: black;
+}
+
+.mdf_shortcode_skin_col1_1 .mdf_input_container_block{
+    float: left;
+    width: 100%;
+    margin-left: 2px;
+    padding: 11px;
+    height: auto;
+}
+
+.mdf_shortcode_skin_col1_1 .mdf_one_moment_txt{
+    height: auto;
+}
+
+.mdf_shortcode_skin_col1_1 .mdf_input_container_taxonomies .mdf_input_container{
+    width: 30% !important;
+    float: left;
+    margin-right: 25px;
+}
+
+.mdf_shortcode_skin_col1_1 .mdf_shortcode_submit_button{
+    float: left;
+    margin-left: 15px;
+    margin-top: 40px;    
+}
+
+.mdf_shortcode_skin_col1_1 .mdf_shortcode_submit_button input{
+    width: 95px !important;
+}
+
+.mdf_shortcode_skin_col1_1 .mdf_shortcode_reset_button{
+    float: left;
+    margin-left: 15px;
+    margin-top: 3px;
+}
+
+.mdf_shortcode_skin_col1_1 .mdf_shortcode_reset_button input{
+    width: 95px !important;
+}
+
+.mdf_shortcode_skin_col1_1 select{
+    float: left !important;
+    width: 200px;
+}
+
+.mdf_shortcode_skin_col1_1 .chosen-container{
+    float: left;
+    margin-right: 25px;
+}
+
+.mdf_input_container_block_0{
+    width: 95% !important;
+}
+

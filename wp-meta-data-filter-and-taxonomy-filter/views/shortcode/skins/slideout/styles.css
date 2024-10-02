@@ -1,0 +1,41 @@
+.mdf-slide-out-div {
+    padding: 20px;
+    width: 250px;
+    background: #eee;
+    border: #ddd 2px solid;    
+    z-index: 8999;
+    opacity: 0;
+    height:1px;
+    -webkit-border-top-left-radius: 12px;
+    -webkit-border-bottom-left-radius: 12px;
+    -moz-border-radius-topleft: 12px;
+    -moz-border-radius-bottomleft: 12px;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.mdf-slide-out-div select{
+    width:100%;
+}
+
+.mdf-slide-out-div .mdf_input_container{
+    margin-bottom: 7px;
+}
+
+
+.mdf-slide-out-div .mdf_taxonomy_check_list li{
+    margin-bottom: 5px !important;
+    display: block;
+}
+
+.mdf-slide-out-div .mdf_taxonomy_check_list{
+    padding: 0 !important;
+}
+
+.mdf-slide-out-div .mdf_shortcode_submit_button{
+    float: left;
+}
+
+.mdf-slide-out-div .mdf_shortcode_reset_button{
+    float: right;
+}

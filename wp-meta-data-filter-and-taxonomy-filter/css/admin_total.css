@@ -1,0 +1,260 @@
+/*
+* includes for all wp admin area
+*/
+#adminmenu .menu-icon-meta_data_filter div.wp-menu-image:before{
+    content: '\f179'
+}
+#adminmenu .menu-icon-mdf_links div.wp-menu-image:before{
+    content: '\f179'
+}
+.meta_data_filter_tax_ul li{
+    background: #ddd;
+    padding: 3px 2px;
+    font-style: italic;
+    cursor: move;
+    margin-bottom: 1px;
+    overflow: hidden;
+    border:solid 1px #aaa;
+}
+
+
+.meta_data_filter_tax_ul li input[type='checkbox']{
+    vertical-align: bottom;
+}
+
+.mdf_childs_terms li div{
+    background: #ccc; 
+    margin-bottom: 1px;
+    padding: 5px;
+    border:solid 1px #aaa;
+}
+
+.mdf_childs_terms li ul{
+    margin-left: 25px;
+}
+
+
+div.info_popup {
+    position: fixed;
+    top: 48%;
+    left: 48%;
+    z-index: 1001;
+    display: none;
+    overflow: hidden;
+    padding: 20px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,.6);
+    -webkit-box-shadow: 
+        inset 0 0 0 1px rgba(0,0,0,.6), 
+        inset 0 0 0 2px rgba(255,255,255,.2);
+    -moz-box-shadow: 
+        inset 0 0 0 1px rgba(0,0,0,.6), 
+        inset 0 0 0 2px rgba(255,255,255,.2);
+    box-shadow: 
+        inset 0 0 0 1px rgba(0,0,0,.6), 
+        inset 0 0 0 2px rgba(255,255,255,.2);
+    color: #fff;
+    font-size: 22px;
+    font-family: 'Oswald',sans-serif;
+}
+
+h3.mdf-section-title{
+    border-bottom: dashed 1px #aaa;
+    padding: 0 0 16px 0;
+    position: relative;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+#mdf_stat_snipet_var .chosen-container{
+    line-height: 30px !important;
+}
+
+.mdf_stat_calendar{
+    height: 32px !important;
+    font-size: 1.2em !important;
+}
+
+.mdf_for_premium_label{
+    color: red !important;
+}
+
+
+.mdtf-red{
+    color: red;
+}
+
+.mdtf-fl{
+    float: left;
+}
+
+.mdtf-fr{
+    float: right;
+}
+
+.mdtf-widget-fix1{
+    background: #ccc; 
+    padding: 5px;
+}
+
+.mdtf-widget-fix2{
+    background: yellow; 
+    padding: 3px;
+}
+
+.meta_data_filter_tax_ul_li{
+    padding: 4px 0 6px 5px;
+}
+
+.mdf_popup_terms_checkbox{
+    opacity: 1 !important; 
+    position: relative;
+}
+
+.mdtf-black{
+    color: #000 !important;
+}
+
+.mdtf-w100p{
+    width: 100% !important;
+}
+
+.mdtf-w90p{
+    width: 90% !important;
+}
+
+.mdtf-w25p{
+    width: 25% !important;
+}
+
+.mdtf-w49p{
+    width: 49% !important;
+}
+
+.mdtf-w45p{
+    width: 45% !important;
+}
+
+.mdtf-w50p{
+    width: 50% !important;
+}
+
+.mdtf-w120{
+    width: 120px !important;
+}
+
+.mdtf-w300{
+    width: 300px !important;
+}
+
+.mdtf-w400{
+    width: 400px !important;
+}
+
+
+.mdf_popup_terms_show_child_terms,
+.mdf_popup_terms_checkbox_max_height,
+.mdf_popup_terms_select_size,
+.mdf_popup_terms_tax_title,
+.mdf_popup_terms_show_how{
+    width: 50%;
+}
+
+.mdtf-h11{
+    height: 11px !important;
+}
+
+.mdtf-h5{
+    height: 5px !important;
+}
+
+#mdf_shotcode_taxonomies{
+    margin-left: 15px !important;
+}
+
+.mdf_shotcode_taxonomies_li{
+    padding: 5px !important;
+    border: solid 1px #ccc !important; 
+    margin-bottom: 11px !important;
+}
+
+.mdtf-p9{
+    padding: 9px !important;
+}
+
+.mdtf-powered-by{
+    float: right !important; 
+    margin-top: 7px !important;
+}
+
+.mdtf-powered-by a{
+    font-size: 11px !important; 
+    color: #aaa !important; 
+    text-decoration: none !important;
+}
+
+.mdtf-m6{
+    margin: 6px !important;
+}
+
+#js_after_ajax_done,
+#custom_css_code{
+    width: 100% !important;
+    height: 200px !important;
+}
+
+#init_on_pages_only{
+    width: 100% !important;
+    height: 150px !important;
+}
+
+.mdtf-green-b{
+    color: green !important; 
+    font-weight: bold !important;
+}
+
+.mdtf_notes_for_customer_messenger,
+.mdtf_text_email_messenger{
+    width: 100% !important; 
+    height: 150px !important;
+}
+
+.mdtf-mb5{
+    margin-bottom: 5px !important;
+}
+
+.mdtf-p0{
+    padding: 0 !important;
+}
+
+.mdtf-fs11{
+    font-size: 11px !important;
+}
+
+.mdf-section-title-wrap{
+    float: right !important; 
+    position: relative !important; 
+    clear: right !important;
+}
+
+.mdf_new_link{
+    width: 100% !important;
+    height: 200px !important;
+}
+
+.mdtf_drag_and_drope{
+    vertical-align: middle !important;
+}
+
+.mdf_delete_filter_item_select{
+    width: 90% !important;
+    margin-bottom: 9px !important;
+}
+
+.mdtf-m0{
+    margin: 0 !important;
+}
+
+

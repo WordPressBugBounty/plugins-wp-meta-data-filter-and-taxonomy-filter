@@ -1,0 +1,712 @@
+.widget-meta-data-filter{
+
+}
+.widget-meta-data-filter table{
+    margin: 0 0 0 0;
+    border: none !important;
+}
+
+.widget-meta-data-filter table td{
+    padding-bottom: 0;
+    border: none !important;
+    border-width: 0 !important;
+    text-align: left;
+}
+
+.widget-meta-data-filter table th{
+    border: none !important;
+    border-width: 0 !important;
+}
+
+.widget-meta-data-filter table td i{
+    font-size: 0.81em;
+    color: #000;
+}
+
+.widget-meta-data-filter select{
+    width: 100% !important;
+    line-height: 21px !important;
+    margin-bottom: 3px !important;
+    padding: 4px !important;
+    height: auto !important;
+}
+
+.widget-meta-data-filter table td select option{
+    padding: 3px;   
+}
+
+h4.data-filter-section-title{
+    font-size: 15px;
+    font-weight: normal;
+    color: #21759B;
+    text-align: left;
+    margin-bottom: 9px;
+}
+
+
+h5.data-filter-section-title{
+
+    font-size: 13px;
+    font-weight: normal;
+    font-style: italic;
+    margin: 0 0 6px 0;
+    text-align: left;
+
+
+}
+/*****************************************/
+ul.mdf_custom_filter_panel{
+    overflow: hidden;
+    margin:0 !important;
+    padding:0 !important;
+}
+
+ul.mdf_custom_filter_panel li{
+    display: block !important;
+    float: left;
+    margin: 0 0 3px 0 !important;
+}
+
+ul.mdf_custom_filter_panel li a {
+    -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+    box-shadow:inset 0px 1px 0px 0px #ffffff;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f9f9f9), color-stop(1, #e9e9e9) );
+    background:-moz-linear-gradient( center top, #f9f9f9 5%, #e9e9e9 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e9e9e9');
+    background-color:#f9f9f9;    
+    text-indent:0;
+    border:1px solid #dcdcdc;
+    display:inline-block;
+    color:#666666;
+    font-family:Arial;
+    font-size:13px;
+    font-weight:bold;
+    font-style:normal;
+    padding-top: 11px !important;
+    padding-bottom: 11px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width:auto;
+    text-decoration:none;
+    text-align:center;
+    text-shadow:1px 1px 0px #ffffff;
+    margin-left: 3px;
+}
+
+ul.mdf_custom_filter_panel li.meta_data_filter_order_asc a{
+    padding-right: 40px !important;
+}
+ul.mdf_custom_filter_panel li.meta_data_filter_order_desc a{
+    padding-right: 40px !important;
+}
+
+ul.mdf_custom_filter_panel li a:hover {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #e9e9e9), color-stop(1, #f9f9f9) );
+    background:-moz-linear-gradient( center top, #e9e9e9 5%, #f9f9f9 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e9e9e9', endColorstr='#f9f9f9');
+    background-color:#e9e9e9;
+}
+
+ul.mdf_custom_filter_panel li a:active {
+    position:relative;
+    top:1px;
+}
+
+ul.mdf_custom_filter_panel li.meta_data_filter_order_asc a{
+    background: url(../images/arrow_skip_up.png) no-repeat 100% -7px;
+}
+
+ul.mdf_custom_filter_panel li.meta_data_filter_order_desc a{
+    background: url(../images/arrow_skip_down.png) no-repeat 100% -5px;
+}
+
+/***********************/
+span.mdf_title_data{
+    overflow: hidden;
+    text-align: left;
+}
+
+.mdf_title_data ul{
+
+}
+
+.mdf_title_data li{
+    margin-bottom: 2px;
+    margin-left: 1px;
+    text-align: left;
+}
+.mdf_title_data li {
+    -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+    box-shadow:inset 0px 1px 0px 0px #ffffff;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf) );
+    background:-moz-linear-gradient( center top, #ededed 5%, #dfdfdf 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf');
+    background-color:#ededed;
+    -webkit-border-top-left-radius:20px;
+    -moz-border-radius-topleft:20px;
+    border-top-left-radius:20px;
+    -webkit-border-top-right-radius:20px;
+    -moz-border-radius-topright:20px;
+    border-top-right-radius:20px;
+    -webkit-border-bottom-right-radius:20px;
+    -moz-border-radius-bottomright:20px;
+    border-bottom-right-radius:20px;
+    -webkit-border-bottom-left-radius:20px;
+    -moz-border-radius-bottomleft:20px;
+    border-bottom-left-radius:20px;
+    text-indent:0;
+    /*border:1px solid #dcdcdc;*/
+    display:inline-block;
+    color:#777777;
+    font-family:Arial;
+    font-size:9px;
+    font-weight:bold;
+    font-style:normal;
+    height:auto;
+    width:auto;
+    padding: 5px;
+    text-decoration:none;
+    text-align:center;
+    text-shadow:1px 1px 0px #ffffff;
+}
+.mdf_title_data li:hover {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );
+    background:-moz-linear-gradient( center top, #dfdfdf 5%, #ededed 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed');
+    background-color:#dfdfdf;
+}
+.mdf_title_data li:active {
+    position:relative;
+    top:1px;
+}
+/*******/
+.mdf_title_data li span.mdf_tooltip2 {
+    display: none;
+    position: absolute;
+    width: auto;
+    max-width: 200px;
+    height: auto;
+    line-height: 20px;
+    padding: 10px;
+    font-size: 12px;
+    text-align: left;
+    font-weight: normal;
+    color: rgb(113, 157, 171);
+    background: rgb(255, 255, 255);
+    border: 4px solid rgb(255, 255, 255);
+    border-radius: 5px;
+    text-shadow: rgba(0, 0, 0, 0.1) 1px 1px 1px;
+    box-shadow: rgba(0, 0, 0, 0.1) 1px 1px 2px 0px;
+    z-index: 1;
+}
+
+.mdf_title_data li:hover span.mdf_tooltip2 {
+    display			: inline;
+    position		: absolute;
+    background		: #ffffff;
+    border			: 1px solid #cccccc;
+    color			: #6c6c6c;
+}
+
+/**************/
+.mdf_title_data_checkbox{
+    font-weight: 900 !important;
+}
+
+.mdf_title_data_select{
+    font-style: normal !important;
+}
+
+.mdf_title_data_slider{
+    font-style: italic !important;
+}
+
+
+
+span.mdf_tooltip2:after {
+    content: "";
+    position: absolute;
+    z-index: 9;
+    width: 0;
+    height: 0;
+    border-width: 10px;
+    border-style: solid;
+    border-color: #FFFFFF transparent transparent transparent;
+    top: 44px;
+    left: 50px;
+}
+
+.widget-meta-data-filter .mdf_item_chars_select{
+    width: 90%; 
+    margin: 5px 0;
+    height: 30px;
+    font-size: 14px;
+}
+
+.widget-meta-data-single table td{
+    padding-bottom: 7px;
+    border: none !important;
+}
+
+.widget-meta-data-single table th{
+    padding-bottom: 7px;
+    border: none !important;
+}
+
+input[type="submit"].mdf_button {
+
+}
+
+.mdf_input_container, .mdf_taxonomy_child_container{
+    padding: 0 0 0 0;
+    text-align: left;
+    width: 100% !important;
+}
+
+.mdf_disabled_select{
+    padding: 5px;
+}
+
+.widget-meta-data-filter label{
+    display: inline !important;
+    vertical-align: middle;
+}
+
+.mdf_input_container{
+    text-align: left;
+}
+
+.widget-meta-data-filter .mdf_input_container{
+    padding:2px 0 3px 0;
+}
+
+.mdf_one_moment_txt{
+    height: 20px;
+}
+
+.mdf_one_moment_txt span{
+    font-size: 14px;
+    color: red;
+    font-style: italic;
+    display: none;
+}
+
+span.mdf_range{
+    display: inline-block;
+}
+
+.mdf_range_max, .mdf_range_min{
+    width: auto !important;
+    min-width: 50px !important;
+    max-width: 70px !important;
+    height: 20px !important;
+    font-size: 13px !important;
+    color: black !important;
+    line-height: 0 !important;
+    padding: 0 !important;
+    display:inline-block !important;
+}
+
+
+.mdf_taxonomy{
+    margin-bottom: 3px;
+}
+
+.mdf_taxonomy_child_container{
+    display: none;
+}
+ul.mdf_taxonomy_check_list{
+    margin-bottom: 0;
+    list-style-position: outside !important;
+}
+
+ul.mdf_taxonomy_check_list li{
+    list-style-type: none;
+    margin-bottom:3px;
+}
+
+ul.mdf_taxonomy_check_list ul{
+    margin-left: 10px !important;
+}
+
+.mdf_widget_found_count{
+    font-weight: bold;
+    padding:9px 0 5px 0;
+    display: inline-block;
+}
+
+
+div.mdf_info_popup {
+    position: fixed;
+    top: 48%;
+    left: 48%;
+    z-index: 10001;
+    display: none;
+    overflow: hidden;
+    padding: 20px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,.6);
+    -webkit-box-shadow: 
+        inset 0 0 0 1px rgba(0,0,0,.6), 
+        inset 0 0 0 2px rgba(255,255,255,.2);
+    -moz-box-shadow: 
+        inset 0 0 0 1px rgba(0,0,0,.6), 
+        inset 0 0 0 2px rgba(255,255,255,.2);
+    box-shadow: 
+        inset 0 0 0 1px rgba(0,0,0,.6), 
+        inset 0 0 0 2px rgba(255,255,255,.2);
+    color: #fff;
+    font-size: 22px;
+    font-family: 'Oswald',sans-serif;
+}
+
+.widget-meta-data-filter h6{
+    display:none;
+}
+
+.mdf_filter_section_scrolled{
+    overflow: auto;
+    overflow-x: hidden;
+    margin-bottom: 7px;
+}
+
+.mdf_filter_section{
+    margin-bottom: 9px;
+}
+
+.mdf_tax_filter_section{
+    overflow: auto;
+    overflow-x: hidden;
+    margin-bottom: 7px;
+    width: 90%;
+}
+
+/*
+.mdf_section_tax{
+    max-height: 150px;
+    overflow: auto;
+    overflow-x: hidden;
+    margin-bottom: 7px;
+}
+*/
+
+.mdf_tooltip{
+    display: inline-block;
+}
+
+label.mdf_taxonomy_checked{
+    font-weight:bold !important;
+}
+
+.chosen-container{
+    margin-bottom: 3px;
+}
+
+.mdf_submit_button_container{
+    float: left; 
+    margin: 0; 
+    padding: 0;
+}
+
+.mdf_reset_button_container{
+    float: right; 
+    margin: 0 0 0 0; 
+    padding: 0;
+}
+
+.mdf_sort_panel_order_by, .mdf_sort_panel_ordering{
+    margin-bottom: 9px;
+    padding:2px;
+}
+
+.mdf_textinput{
+    width: 91%;
+}
+
+.mdf_calendar{
+    width:40%;
+}
+
+
+.mdf_front_toggle{
+    float:right;
+}
+
+.mdf_front_toggle_closed_section{
+    overflow: hidden;
+    height:0;
+}
+
+.mdf_highlighted_title{
+    background-color: yellow;
+}
+
+.mdf_highlighted_content{
+    background-color: yellow;
+}
+
+.mdf_select_emulator_container .dropdown dd,
+.mdf_select_emulator_container .dropdown dt {
+    margin: 0px;
+    padding: 0px;
+}
+
+.mdf_select_emulator_container .dropdown ul {
+    margin: -1px 0 0 0;
+}
+
+.mdf_select_emulator_container .dropdown dd {
+    position: relative;
+}
+
+.mdf_select_emulator_container .dropdown a,
+.mdf_select_emulator_container .dropdown a:visited {
+    color: #fff;
+    text-decoration: none;
+    outline: none;
+    font-size: 12px;
+}
+
+.mdf_select_emulator_container .dropdown a:hover{
+    color: #ddd;
+}
+
+.mdf_select_emulator_container .dropdown dt a {
+    background-color: #4F6877;
+    display: block;
+    padding: 8px 20px 5px 10px;
+    min-height: 18px;
+    line-height: normal;
+    overflow: hidden;
+    border: 0;
+    width: 99%;
+    box-sizing: border-box;
+}
+
+.mdf_select_emulator_container .dropdown dt a span,
+.mdf_select_emulator_container .multiSel span {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 3px 2px 0;
+}
+
+.mdf_select_emulator_container .dropdown dd ul {
+    background: #333;
+    border: 0;
+    color: #fff;
+    display: none;
+    left: 0px;
+    padding: 14px;
+    position: absolute;
+    z-index: 99;
+    top: 2px;
+    width: 100%;
+    list-style: none;
+    height: 100px;
+    overflow: auto;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.mdf_select_emulator_container .dropdown span.value {
+    display: none;
+}
+
+.mdf_select_emulator_container .dropdown dd ul li{
+    padding: 0 0 5px 0;
+}
+
+.mdf_select_emulator_container .dropdown dd ul li a {
+    padding: 5px;
+    display: block;
+}
+
+.mdf_select_emulator_container .dropdown dd ul li a:hover {
+    background-color: #fff;
+}
+
+.mdf_search_is_going form.woocommerce-ordering{
+    display: none;
+}
+
+
+.mdf_label_item:hover,
+.mdf_label_item.checked {
+    background-color: #34495e;
+    border-color: #34495e;
+}
+
+.mdf_label_item
+{
+    display: block;
+    background-color: #efefef;
+    border: 1px solid #ddd;
+    margin: 3px 3px 3px 0;
+    padding: 3px 4px;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    overflow: hidden;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mdf_label_item:hover,
+.mdf_label_item.checked
+{
+    background-color: #34495e;
+    border-color: #34495e;
+    color: #fff;
+}
+
+.mdf_label_count{
+    font-size: 10px;
+    position: absolute; 
+    background: orangered;
+    margin: -5px 0 0 30px;
+    -webkit-border-radius: 200px;
+    -moz-border-radius: 200px;
+    border-radius: 200px;
+    width: 18px;
+    height: 18px;
+    line-height: 17px !important;
+    color: wheat;
+    text-align: center;
+    font-weight: bold;
+}
+
+.mdf_tax_label_item:hover,
+.mdf_tax_label_item.checked {
+    background-color: #34495e;
+    border-color: #34495e;
+}
+
+.mdf_tax_label_item
+{
+    display: block;
+    background-color: #efefef;
+    border: 1px solid #ddd;
+    margin: 3px 3px 3px 0;
+    padding: 3px 4px;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    overflow: hidden;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mdf_tax_label_item:hover,
+.mdf_tax_label_item.checked
+{
+    background-color: #34495e;
+    border-color: #34495e;
+    color: #fff;
+}
+.mdf_taxonomy_label_list li{
+    display: inline-block;
+    margin-left: 5px;
+}
+.mdf_front_toggle_closed_section .mdf_label_count{
+    display: none;
+}
+
+.mdf_panel_container .mdf_terms_panel{
+    background: none;
+    border: 3px solid grey;
+    padding: 5px; 
+    margin-left: 10px;
+    margin-top: 10px;
+    display: inline-block;
+}
+.mdf_panel_remove{
+    margin-left: 5px;
+    cursor: pointer;
+}
+.mdf_remove_icon img{
+    height: 16px;
+}
+
+.mdf_shortcode_skin_col1 .mdf_range_select_cont select {
+    float: inherit !important;
+}
+
+#mdf_results_by_ajax.mdf_load_more .tw-pagination li{
+    display:none;
+    content: "\f463";
+}
+#mdf_results_by_ajax.mdf_load_more .tw-pagination{
+    text-align: center;
+}
+#mdf_results_by_ajax.mdf_load_more .tw-pagination li .dashicons-update{
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.mdtf-mapping{
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.mdtf-mapping div img{
+    max-width:none !important;
+}
+
+.mdtf-w100p{
+    width: 100% !important;
+}
+
+.mdtf-w98p{
+    width: 98% !important;
+}
+
+.mdtf-w49p{
+    width: 49% !important;
+}
+
+.mdtf-w120{
+    width: 120px !important;
+}
+
+.mdtf-w400{
+    width: 400px !important;
+}
+
+
+.mdtf-h11{
+    height: 11px !important;
+}
+
+.mdtf-h5{
+    height: 5px !important;
+}
+
+.mdtf-mb4{
+    margin-bottom: 4px !important;
+}
+
+.mdtf-mb9{
+    margin-bottom: 9px !important;
+}
+
+
+.mdtf-clear{
+    clear: both !important;
+}
+
+.mdtf-p0{
+    padding: 0 !important;
+}
+
+
+
+
+
