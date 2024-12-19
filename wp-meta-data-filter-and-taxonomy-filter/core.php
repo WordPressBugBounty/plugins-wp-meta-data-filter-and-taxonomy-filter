@@ -111,14 +111,14 @@ class MetaDataFilterCore {
         if (isset($_REQUEST['page_mdf'])) {
             $key_string = sanitize_text_field($_REQUEST['page_mdf']);
         }
-		
+
         $string = self::get_page_mdf_session($key_string);
 
         return $string;
     }
 
     public static function set_page_mdf_session($string) {
-		
+
 //$string is base64 encoded
         $key_string = md5($string);
 
@@ -172,7 +172,7 @@ class MetaDataFilterCore {
             return $page_meta_data_filter;
         }
 //+++
-		
+
         $page_mdf_string = self::get_page_mdf_string();
 
 //is base64
@@ -282,7 +282,7 @@ class MetaDataFilterCore {
         if (self::get_setting('overlay_skin') != 'default') {
             wp_enqueue_script('mdft_plainoverlay', self::get_application_uri() . 'js/plainoverlay/jquery.plainoverlay.min.js', array('jquery'));
             wp_enqueue_style('mdft_plainoverlay', self::get_application_uri() . 'css/plainoverlay.css');
-			// change  to  https://github.com/anseki/plain-overlay
+            // change  to  https://github.com/anseki/plain-overlay
         }
     }
 
@@ -295,6 +295,7 @@ class MetaDataFilterCore {
         include($pagepath);
         return ob_get_clean();
     }
+
     public static function render_html_e($pagepath, $data = array()) {
         if (isset($data['pagepath'])) {
             unset($data['pagepath']);
@@ -302,7 +303,7 @@ class MetaDataFilterCore {
         @extract($data);
 
         include($pagepath);
-    }	
+    }
 
 //API
 
@@ -325,7 +326,12 @@ class MetaDataFilterCore {
 //***
         if ($look_for_reflection) {
             global $wpdb;
-            $filter_post_id = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta WHERE meta_value LIKE '%{$key}%'");
+
+            $filter_post_id = $wpdb->get_var(
+                    $wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_value LIKE %s;",
+                            '%' . $wpdb->esc_like($key) . '%')
+            );
+
             $html_items = self::get_html_items($filter_post_id);
             if (isset($html_items[$key])) {
                 if (isset($html_items[$key]['is_reflected']) AND $html_items[$key]['is_reflected'] == 1) {
@@ -349,6 +355,7 @@ class MetaDataFilterCore {
         $option_key = get_post_meta($post_id, $meta_key, true);
 
         $data = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_key='html_items' AND meta_value LIKE %s ORDER BY post_id ASC", '%' . $wpdb->esc_like($meta_key) . '%'), ARRAY_N);
+
         $section_id = 0;
         if (!empty($data)) {
             $section_id = $data[0][0];
@@ -410,22 +417,22 @@ class MetaDataFilterCore {
                 delete_transient(str_replace('_transient_', '', $transient->option_name));
             }
         }
-
     }
 
     public static function escape($value) {
         return sanitize_text_field(esc_html($value));
     }
-	public static function sanitize_array_r($arr) {
+
+    public static function sanitize_array_r($arr) {
         $newArr = array();
-		if(!is_array($arr)){
-			return sanitize_text_field($arr);
-		}
+        if (!is_array($arr)) {
+            return sanitize_text_field($arr);
+        }
         foreach ($arr as $key => $value) {
             $newArr[sanitize_key($key)] = ( is_array($value) ) ? self::sanitize_array_r($value) : sanitize_text_field($value);
         }
-        return $newArr;		
-	}
+        return $newArr;
+    }
 }
 
 class WP_QueryMDFCounter {
@@ -438,7 +445,7 @@ class WP_QueryMDFCounter {
     public function __construct($query) {
         global $wpdb;
         $query = (array) $query;
-        
+
         $key = md5(json_encode($query));
         $this->key_string = 'mdf_count_cache_' . $key;
         $this->table = $wpdb->prefix . MetaDataFilterCore::$mdf_query_cache_table;
@@ -496,7 +503,6 @@ class WP_QueryMDFCounter {
 
         return $result;
     }
-
 }
 
 class WP_QueryMDFCounterIn extends WP_Query {
@@ -504,7 +510,6 @@ class WP_QueryMDFCounterIn extends WP_Query {
     function set_found_posts($q, $limits) {
         return false;
     }
-
 }
 
 if (!function_exists('is_product_taxonomy')) {

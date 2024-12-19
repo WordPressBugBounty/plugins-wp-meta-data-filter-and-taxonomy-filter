@@ -3,9 +3,9 @@ Contributors: RealMag777
 Donate link: https://pluginus.net/affiliate/meta-data-taxonomies-filter
 Tags: filter,products filter,taxonomies filter,meta filter,woocommerce
 Requires at least: 4.1.0
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 5.6
-Stable tag: 1.3.3.5
+Stable tag: 1.3.3.6
 
 The main idea of the plugin – make your WordPress site content is filterable and searchable by meta fields and taxonomies on the same time.
 
@@ -174,23 +174,26 @@ R: [https://wp-filter.com/video-tutorials/](https://wp-filter.com/video-tutorial
 
 == Changelog ==
 
+= 1.3.3.6 =
+- 1 security issues are fixed, thanks to Thanh Nam Tran from wordfence.com
+
 = 1.3.3.5 =
-- 2 security issues are fixed, thanks to Dimas Maulana and SOPROBRO from Patchstack
+- 2 security issues are fixed, thanks to Dimas Maulana and SOPROBRO and Patchstack
 
 = 1.3.3.4 =
-- 1 security issue is fixed, thanks to Krzysztof Zając from wordfence.com
+- 1 security issue is fixed, thanks to Krzysztof Zając and wordfence.com
 
 = 1.3.3.3 =
-- 1 security issue is fixed, thanks to stealthcopter from Patchstack
+- 1 security issue is fixed, thanks to stealthcopter and Patchstack
 
 = 1.3.3.2 =
-- 1 security issue is fixed, thanks to Dhabaleshwar Das from Patchstack
+- 1 security issue is fixed, thanks to Dhabaleshwar Das and Patchstack
 
 = 1.3.3.1 =
-- 2 security issues is fixed thanks to Abdi Pranata from Patchstack
+- 2 security issues is fixed thanks to Abdi Pranata and Patchstack
 
 = 1.3.3 =
-- 1 security issue is fixed thanks to Yudistira Arya from Patchstack
+- 1 security issue is fixed thanks to Yudistira Arya and Patchstack
 
 = 1.3.2 =
 - bunch of small fixes

@@ -10,7 +10,22 @@
 
 <div class="wrap">
 
-    <h2><?php if (MetaDataFilter::$is_free): ?><a href="https://codecanyon.pluginus.net/item/wordpress-meta-data-taxonomies-filter/7002700" target="_blank" class="button button-primary"><?php esc_html_e("GET Premium version", 'meta-data-filter') ?></a>&nbsp;<?php endif; ?><?php esc_html_e("MDTF Settings", 'meta-data-filter') ?> v.<?php echo esc_html(MetaDataFilter::get_plugin_ver()) ?>&nbsp;&nbsp;&nbsp;<a href="https://wp-filter.com/documentation/" target="_blank" class="button"><?php esc_html_e("Read", 'meta-data-filter') ?></a>&nbsp;&amp;&nbsp; <a href="https://wp-filter.com/video/" target="_blank" class="button"><?php esc_html_e("Watch", 'meta-data-filter') ?></a></h2>
+    <h2>
+
+        <?php if (MetaDataFilter::$is_free): ?>
+
+            <?php if (time() < 1733094000): ?>
+                <a href="https://codecanyon.pluginus.net/item/wordpress-meta-data-taxonomies-filter/7002700" target="_blank" class="button" style="padding: 0; margin: 0; line-height: 0;">
+                    <img src="https://pluginus.net/wp-content/uploads/2024/11/envato-cybersale-2024.png" width="60" alt="Cybermonday AND Blackfriday" />
+                </a>&nbsp;
+            <?php else: ?>
+                <a href="https://codecanyon.pluginus.net/item/wordpress-meta-data-taxonomies-filter/7002700" target="_blank" class="button button-primary"><?php esc_html_e("GET Premium version", 'meta-data-filter') ?></a>&nbsp;
+            <?php endif; ?>
+        <?php endif; ?>
+
+
+        <?php esc_html_e("MDTF Settings", 'meta-data-filter') ?> v.<?php echo esc_html(MetaDataFilter::get_plugin_ver()) ?>&nbsp;&nbsp;&nbsp;<a href="https://wp-filter.com/documentation/" target="_blank" class="button"><?php esc_html_e("Read", 'meta-data-filter') ?></a>&nbsp;&amp;&nbsp; <a href="https://wp-filter.com/video/" target="_blank" class="button"><?php esc_html_e("Watch", 'meta-data-filter') ?></a>
+    </h2>
 
 
     <?php if (!empty($_POST)): ?>
@@ -82,12 +97,12 @@
                         <tr valign="top">
                             <th scope="row"><label><?php esc_html_e("Reset custom link", 'meta-data-filter') ?></label></th>
                             <td>
-                                <input type="text" class="regular-text" value="<?php echo esc_html(isset($data['reset_link'])?$data['reset_link']:""); ?>" name="meta_data_filter_settings[reset_link]">
+                                <input type="text" class="regular-text" value="<?php echo esc_html(isset($data['reset_link']) ? $data['reset_link'] : ""); ?>" name="meta_data_filter_settings[reset_link]">
                                 <p class="description"><?php esc_html_e("Leave this field empty if you do not need this. Of course each widget and shortcode has such option too.", 'meta-data-filter') ?></p>
                             </td>
                         </tr>
 
-                         <tr valign="top">
+                        <tr valign="top">
                             <th scope="row" class="mdf_for_premium_label"><label><?php esc_html_e("Results per page", 'meta-data-filter') ?></label></th>
                             <td>
                                 <input type="text" class="regular-text" readonly="" value="0">
@@ -265,8 +280,8 @@
                                 <p class="description"><?php esc_html_e("Toggle close sign on front widget while using toggles for sections.", 'meta-data-filter') ?></p>
                             </td>
                         </tr>
-                        
-                        
+
+
                         <tr valign="top">
                             <th scope="row"><label for="hide_search_button_shortcode"><?php esc_html_e("Hide [mdf_search_button] on mobile devices", 'meta-data-filter') ?></label></th>
                             <td>
@@ -341,15 +356,15 @@
                         <tr valign="top">
                             <th scope="row"><label><?php esc_html_e("Tooltip max width", 'meta-data-filter') ?></label></th>
                             <td>
-                                <input type="text" class="regular-text" value="<?php echo esc_html(isset($data['tooltip_max_width'])?$data['tooltip_max_width']:''); ?>" name="meta_data_filter_settings[tooltip_max_width]">
+                                <input type="text" class="regular-text" value="<?php echo esc_html(isset($data['tooltip_max_width']) ? $data['tooltip_max_width'] : ''); ?>" name="meta_data_filter_settings[tooltip_max_width]">
                             </td>
                         </tr>
                         <tr valign="top">
                             <th scope="row"><label><?php esc_html_e("Tab slideout icon image settings", 'meta-data-filter') ?></label></th>
                             <td>
-                                <input type="text" class="regular-text" placeholder="<?php esc_html_e("default icon url", 'meta-data-filter') ?>" value="<?php echo esc_url_raw(isset($data['tab_slideout_icon'])?$data['tab_slideout_icon']:''); ?>" name="meta_data_filter_settings[tab_slideout_icon]"><br />
-                                <input type="text" class="regular-text" placeholder="<?php esc_html_e("default icon width", 'meta-data-filter') ?>" value="<?php echo esc_html(isset($data['tab_slideout_icon_w'])?$data['tab_slideout_icon_w']:''); ?>" name="meta_data_filter_settings[tab_slideout_icon_w]"><br />
-                                <input type="text" class="regular-text" placeholder="<?php esc_html_e("default icon height", 'meta-data-filter') ?>" value="<?php echo esc_html(isset($data['tab_slideout_icon_h'])?$data['tab_slideout_icon_h']:''); ?>" name="meta_data_filter_settings[tab_slideout_icon_h]"><br />
+                                <input type="text" class="regular-text" placeholder="<?php esc_html_e("default icon url", 'meta-data-filter') ?>" value="<?php echo esc_url_raw(isset($data['tab_slideout_icon']) ? $data['tab_slideout_icon'] : ''); ?>" name="meta_data_filter_settings[tab_slideout_icon]"><br />
+                                <input type="text" class="regular-text" placeholder="<?php esc_html_e("default icon width", 'meta-data-filter') ?>" value="<?php echo esc_html(isset($data['tab_slideout_icon_w']) ? $data['tab_slideout_icon_w'] : ''); ?>" name="meta_data_filter_settings[tab_slideout_icon_w]"><br />
+                                <input type="text" class="regular-text" placeholder="<?php esc_html_e("default icon height", 'meta-data-filter') ?>" value="<?php echo esc_html(isset($data['tab_slideout_icon_h']) ? $data['tab_slideout_icon_h'] : ''); ?>" name="meta_data_filter_settings[tab_slideout_icon_h]"><br />
                                 <p class="description"><?php esc_html_e("Link and width/height to png icon for tab slideout shortcode", 'meta-data-filter') ?></p>
                             </td>
                         </tr>
@@ -660,7 +675,7 @@
                                     <label>
                                         <?php
                                         $var = 3;
-                                        if (isset($data['ajax_pagination']['range']) AND!empty($data['ajax_pagination']['range'])) {
+                                        if (isset($data['ajax_pagination']['range']) AND !empty($data['ajax_pagination']['range'])) {
                                             $var = $data['ajax_pagination']['range'];
                                         }
                                         ?>
@@ -679,7 +694,7 @@
                                     <label>
                                         <?php
                                         $var = 1;
-                                        if (isset($data['ajax_pagination']['anchor']) AND!empty($data['ajax_pagination']['anchor'])) {
+                                        if (isset($data['ajax_pagination']['anchor']) AND !empty($data['ajax_pagination']['anchor'])) {
                                             $var = $data['ajax_pagination']['anchor'];
                                         }
                                         ?>
@@ -699,7 +714,7 @@
                                     <label>
                                         <?php
                                         $var = 3;
-                                        if (isset($data['ajax_pagination']['gap']) AND!empty($data['ajax_pagination']['gap'])) {
+                                        if (isset($data['ajax_pagination']['gap']) AND !empty($data['ajax_pagination']['gap'])) {
                                             $var = $data['ajax_pagination']['gap'];
                                         }
                                         ?>
@@ -748,7 +763,7 @@
 
                 $data['label_messenger'] = (isset($data['label_messenger']) ? $data['label_messenger'] : 'Posts Messenger');
                 $data['subscr_count'] = (isset($data['subscr_count']) ? $data['subscr_count'] : 2);
-                if (!isset($data['use_external_cron'])OR empty($data['use_external_cron'])) {
+                if (!isset($data['use_external_cron']) OR empty($data['use_external_cron'])) {
                     $data['use_external_cron'] = bin2hex(random_bytes(12));
                 }
                 $data['header_email_messenger'] = (isset($data['header_email_messenger']) ? $data['header_email_messenger'] : esc_html__("New Posts by your request", 'meta-data-filter'));
@@ -809,8 +824,11 @@
                                 <th scope="row"><label><?php esc_html_e("External cron key (is recommended as flexible for timetable)", 'meta-data-filter') ?></label></th>
                                 <td>
                                     <input type="text" class="regular-text" value="<?php echo esc_attr($data['use_external_cron']); ?>" name="meta_data_filter_settings[use_external_cron]">
-                                    <p class="description"><?php esc_html_e('For external cron use the next link', 'meta-data-filter'); ?>: <i class="woof_cron_link" ><b><?php echo get_home_url() . "?mdf_pm_cron_key="; echo esc_attr($data['use_external_cron']); ?></b></i><br />
-                                        <?php esc_html_e('To reset the key, just delete it here and save the plugin settings OR write by hands your own. Key should be min 16 symbols.', 'meta-data-filter'); ?> </p>
+                                    <p class="description"><?php esc_html_e('For external cron use the next link', 'meta-data-filter'); ?>: <i class="woof_cron_link" ><b><?php
+                                                echo get_home_url() . "?mdf_pm_cron_key=";
+                                                echo esc_attr($data['use_external_cron']);
+                                                ?></b></i><br />
+    <?php esc_html_e('To reset the key, just delete it here and save the plugin settings OR write by hands your own. Key should be min 16 symbols.', 'meta-data-filter'); ?> </p>
                                 </td>
                             </tr>
 
@@ -866,7 +884,7 @@
                                     <select name="meta_data_filter_settings[date_expire_period_messenger]">
                                         <?php foreach ($date_expire as $key => $txt): ?>
                                             <option <?php selected($date_expire_period, $key) ?> value="<?php echo esc_attr($key) ?>"><?php echo esc_html($txt); ?></option>
-                                        <?php endforeach; ?>
+    <?php endforeach; ?>
                                     </select>
                                     <p class="description"><?php esc_html_e('How long user will get emails after subscription. ', 'meta-data-filter') ?></p>
                                 </td>
@@ -897,7 +915,7 @@
                                     <select name="meta_data_filter_settings[priority_limit_messenger]">
                                         <?php foreach ($priority_limit as $key => $txt): ?>
                                             <option <?php selected($priority_limit_messenger, $key) ?> value="<?php echo esc_attr($key) ?>"><?php echo esc_html($txt); ?></option>
-                                        <?php endforeach; ?>
+    <?php endforeach; ?>
                                     </select>
                                     <p class="description"><?php esc_html_e('Which limitation has priority. Event after which user stop getting the emails. Both - means that any first event ("Subscription time" or "Emails count") of two ones, will reset user subscription.', 'meta-data-filter') ?></p>
                                 </td>
@@ -918,11 +936,11 @@
             <?php endif; ?>
 
             <?php //+++++++++++++++++STAT++++++++++++++++++++++++++++++++  ?>
-            <?php if (class_exists('MDF_SEARCH_STAT')): ?>
+                <?php if (class_exists('MDF_SEARCH_STAT')): ?>
                 <div id="tabs-7">
-                    <?php do_action('mdf_print_applications_tabs_content_stat'); ?>
+                <?php do_action('mdf_print_applications_tabs_content_stat'); ?>
                 </div>
-            <?php endif; ?>
+<?php endif; ?>
 
 
 
@@ -935,7 +953,7 @@
                             <td>
                                 <fieldset>
                                     <label>
-                                        <input id="gmap_js_include_pages" type="text" class="regular-text" placeholder="Example: 75,134,96" value="<?php echo esc_html(isset($data['gmap_js_include_pages'])?$data['gmap_js_include_pages']:''); ?>" name="meta_data_filter_settings[gmap_js_include_pages]" />
+                                        <input id="gmap_js_include_pages" type="text" class="regular-text" placeholder="Example: 75,134,96" value="<?php echo esc_html(isset($data['gmap_js_include_pages']) ? $data['gmap_js_include_pages'] : ''); ?>" name="meta_data_filter_settings[gmap_js_include_pages]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e("Some themes has already included google maps js, so maybe you will not need this option. But if you are need this - you can include it on pages (ID) on which you are using map, not on all pages of your site! Set -1 if you want to include it on all pages of your site.", 'meta-data-filter') ?></p>
@@ -946,7 +964,7 @@
                             <td>
                                 <fieldset>
                                     <label>
-                                        <input id="gmap_user_api_key" type="text" class="regular-text" placeholder="API key" value="<?php echo esc_html(isset($data['gmap_user_api_key'])?$data['gmap_user_api_key']:''); ?>" name="meta_data_filter_settings[gmap_user_api_key]" />
+                                        <input id="gmap_user_api_key" type="text" class="regular-text" placeholder="API key" value="<?php echo esc_html(isset($data['gmap_user_api_key']) ? $data['gmap_user_api_key'] : ''); ?>" name="meta_data_filter_settings[gmap_user_api_key]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e("", 'meta-data-filter') ?></p>
@@ -974,7 +992,7 @@
                                         <select name="meta_data_filter_settings[keep_search_data_in]">
                                             <?php foreach ($keep_search_data_in as $key => $value) : ?>
                                                 <option value="<?php echo $key; ?>" <?php if ($data['keep_search_data_in'] == $key): ?>selected="selected"<?php endif; ?>><?php echo esc_html($value); ?></option>
-                                            <?php endforeach; ?>
+<?php endforeach; ?>
                                         </select>
 
 
@@ -1007,13 +1025,13 @@
                                         <select name="meta_data_filter_settings[cache_count_data]">
                                             <?php foreach ($cache_count_data as $key => $value) : ?>
                                                 <option value="<?php echo esc_attr($key); ?>" <?php if ($data['cache_count_data'] == $key): ?>selected="selected"<?php endif; ?>><?php echo esc_html($value); ?></option>
-                                            <?php endforeach; ?>
+<?php endforeach; ?>
                                         </select>
 
 
-                                        <?php if ($data['cache_count_data']): ?>
+<?php if ($data['cache_count_data']): ?>
 
-                                        &nbsp;<a href="#" class="button js_cache_count_data_clear"><?php esc_html_e("clear cache", 'meta-data-filter') ?></a>&nbsp;<span class="mdtf-green-b"></span>
+                                            &nbsp;<a href="#" class="button js_cache_count_data_clear"><?php esc_html_e("clear cache", 'meta-data-filter') ?></a>&nbsp;<span class="mdtf-green-b"></span>
 
                                             &nbsp;
                                             <?php
@@ -1037,11 +1055,11 @@
                                             <select name="meta_data_filter_settings[cache_count_data_auto_clean]">
                                                 <?php foreach ($periods as $key => $txt): ?>
                                                     <option <?php selected($clean_period, $key) ?> value="<?php echo esc_attr($key) ?>"><?php echo esc_html($txt); ?></option>
-                                                <?php endforeach; ?>
+    <?php endforeach; ?>
                                             </select>
 
 
-                                        <?php endif; ?>
+<?php endif; ?>
 
                                     </label>
                                 </fieldset>
@@ -1101,13 +1119,13 @@
                                         <select name="meta_data_filter_settings[cache_terms_data]">
                                             <?php foreach ($cache_terms_data as $key => $value) : ?>
                                                 <option value="<?php echo esc_attr($key); ?>" <?php if ($data['cache_terms_data'] == $key): ?>selected="selected"<?php endif; ?>><?php echo esc_html($value); ?></option>
-                                            <?php endforeach; ?>
+<?php endforeach; ?>
                                         </select>
 
 
-                                        <?php if ($data['cache_terms_data']): ?>
+<?php if ($data['cache_terms_data']): ?>
 
-                                        &nbsp;<a href="#" class="button js_cache_terms_data_clear"><?php esc_html_e("clear cache", 'meta-data-filter') ?></a>&nbsp;<span class="mdtf-green-b"></span>
+                                            &nbsp;<a href="#" class="button js_cache_terms_data_clear"><?php esc_html_e("clear cache", 'meta-data-filter') ?></a>&nbsp;<span class="mdtf-green-b"></span>
 
                                             &nbsp;
                                             <?php
@@ -1131,11 +1149,11 @@
                                             <select name="meta_data_filter_settings[cache_terms_data_auto_clean]">
                                                 <?php foreach ($periods as $key => $txt): ?>
                                                     <option <?php selected($clean_period, $key) ?> value="<?php echo esc_attr($key) ?>"><?php echo esc_html($txt); ?></option>
-                                                <?php endforeach; ?>
+    <?php endforeach; ?>
                                             </select>
 
 
-                                        <?php endif; ?>
+<?php endif; ?>
 
                                     </label>
                                 </fieldset>
@@ -1144,24 +1162,24 @@
                             </td>
                         </tr>
 
-                        <?php if (isset($_SERVER['SCRIPT_URI']) OR isset($_SERVER['REQUEST_URI'])): ?>
+<?php if (isset($_SERVER['SCRIPT_URI']) OR isset($_SERVER['REQUEST_URI'])): ?>
                             <tr valign="top">
                                 <th scope="row"><label for="init_on_pages_only"><?php esc_html_e("Init plugin on the next site pages ~only~", 'meta-data-filter') ?></label></th>
                                 <td>
                                     <fieldset>
-                                        <textarea name="meta_data_filter_settings[init_on_pages_only]" id="init_on_pages_only"><?php echo esc_textarea(isset($data['init_on_pages_only'])?trim($data['init_on_pages_only']):'') ?></textarea>
+                                        <textarea name="meta_data_filter_settings[init_on_pages_only]" id="init_on_pages_only"><?php echo esc_textarea(isset($data['init_on_pages_only']) ? trim($data['init_on_pages_only']) : '') ?></textarea>
                                     </fieldset>
                                     <p class="description"><?php esc_html_e("This option excludes initialization of the plugin on all pages of the site except links in the textarea. One row - one link! Example: http://woocommerce.wp-filter.com/ajaxed-search-7/ - slash in the end of the link should be!", 'meta-data-filter') ?></p>
                                 </td>
                             </tr>
-                        <?php endif; ?>
+<?php endif; ?>
 
 
                         <tr valign="top">
                             <th scope="row"><label for="custom_css_code"><?php esc_html_e("Custom CSS code", 'meta-data-filter') ?></label></th>
                             <td>
                                 <fieldset>
-                                    <textarea name="meta_data_filter_settings[custom_css_code]" id="custom_css_code"><?php echo esc_textarea(isset($data['custom_css_code'])?stripcslashes($data['custom_css_code']):$data['custom_css_code']); ?></textarea>
+                                    <textarea name="meta_data_filter_settings[custom_css_code]" id="custom_css_code"><?php echo esc_textarea(isset($data['custom_css_code']) ? stripcslashes($data['custom_css_code']) : $data['custom_css_code']); ?></textarea>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e("If you are need to customize something and you don't want to lose your changes after update", 'meta-data-filter') ?></p>
                             </td>
@@ -1301,7 +1319,7 @@
     </form>
 
 
-    <?php if (MetaDataFilter::$is_free): ?>
+<?php if (MetaDataFilter::$is_free): ?>
         <hr />
         <br />
 
@@ -1333,7 +1351,7 @@
             </tbody>
         </table>
 
-    <?php endif; ?>
+<?php endif; ?>
 
     <hr />
 
@@ -1349,7 +1367,7 @@
                         <select name="mass_filter_slug">
                             <?php foreach (MetaDataFilterCore::get_post_types() as $post_type => $post_type_name) : ?>
                                 <option value="<?php echo esc_attr($post_type_name) ?>"><?php echo esc_html($post_type_name) ?></option>
-                            <?php endforeach; ?>
+<?php endforeach; ?>
                         </select>
                         <p class="description"><?php esc_html_e("Check post types to which filter ID should be assign. Enter right data, do not joke with it!", 'meta-data-filter') ?></p>
                     </td>
