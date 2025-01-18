@@ -300,7 +300,7 @@ If you want more functionality, look here: https://wp-filter.com/a/buy
 
 == License ==
 
-This plugin is copyright pluginus.net &copy; 2012-2024 with [GNU General Public License][] by realmag777.
+This plugin is copyright pluginus.net &copy; 2012-2025 with [GNU General Public License][] by realmag777.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the [GNU General Public License][] as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
