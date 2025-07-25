@@ -157,7 +157,7 @@ final class MDTF_HELPER {
         if (!isset($_REQUEST['mdf_search_by_author']) OR $_REQUEST['mdf_search_by_author'] == -1) {
             return $where;
         }
-		$mdf_search_by_author = sanitize_text_field($_REQUEST['mdf_search_by_author']);
+		$mdf_search_by_author = intval($_REQUEST['mdf_search_by_author']);
         $where .= " AND post_author={$mdf_search_by_author} ";
         return $where;
     }

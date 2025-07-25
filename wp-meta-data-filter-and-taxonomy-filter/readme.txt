@@ -3,9 +3,9 @@ Contributors: RealMag777
 Donate link: https://pluginus.net/affiliate/meta-data-taxonomies-filter
 Tags: filter,products filter,taxonomies filter,meta filter,woocommerce
 Requires at least: 4.1.0
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 5.6
-Stable tag: 1.3.3.7
+Stable tag: 1.3.3.8
 
 The main idea of the plugin – make your WordPress site content is filterable and searchable by meta fields and taxonomies on the same time.
 
@@ -155,6 +155,9 @@ R: [https://wp-filter.com/documentation/](https://wp-filter.com/documentation/)
 Q: Where can I watch video tutorials?
 R: [https://wp-filter.com/video-tutorials/](https://wp-filter.com/video-tutorials/)
 
+Q: Where can I send security bug report about the plugin?
+R: You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/wp-meta-data-filter-and-taxonomy-filter)
+
 
 == Screenshots ==
 
@@ -173,6 +176,9 @@ R: [https://wp-filter.com/video-tutorials/](https://wp-filter.com/video-tutorial
 
 
 == Changelog ==
+
+= 1.3.3.8 =
+- 1 security issues are fixed, thanks to Que Thanh Tuan (Blue Rock) and Patchstack
 
 = 1.3.3.7 =
 - 1 security issues are fixed, thanks to theviper17y from wordfence.com
@@ -303,7 +309,7 @@ If you want more functionality, look here: https://wp-filter.com/a/buy
 
 == License ==
 
-This plugin is copyright pluginus.net &copy; 2012-2025 with [GNU General Public License][] by realmag777.
+This plugin is copyright pluginus.net &copy; 2012-2026 with [GNU General Public License][] by realmag777.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the [GNU General Public License][] as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
