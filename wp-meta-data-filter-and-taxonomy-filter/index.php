@@ -13,7 +13,7 @@
   Domain Path: /languages
   Forum URI: https://pluginus.net/support/forum/mdtf-wordpress-meta-data-taxonomies-filter/
   WC requires at least: 3.6.0
-  WC tested up to: 10.0
+  WC tested up to: 10.1
  */
 
 
