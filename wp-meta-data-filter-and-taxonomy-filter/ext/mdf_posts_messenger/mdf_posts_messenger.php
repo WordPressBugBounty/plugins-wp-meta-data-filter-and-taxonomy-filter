@@ -147,14 +147,14 @@ class MDF_POSTS_MESSENGER {
     public function mdf_add_subscr() {
         global $wpdb, $wp_query;
 
-        if (!isset($_POST['attr']) OR!isset($_POST['user_id']) OR!isset($_POST['curr_link'])) {
+        if (!isset($_POST['attr']) OR !is_user_logged_in() OR!isset($_POST['curr_link'])) {
             die("Wrong data");
         }
 
         //***
 
         $data = array();
-        $sanit_user_id = sanitize_key($_POST['user_id']);
+        $sanit_user_id = get_current_user_id();
         if ($sanit_user_id < 1) {
             die("User id error"); //if user id - wrong!!!
         }
@@ -226,11 +226,11 @@ class MDF_POSTS_MESSENGER {
     }
 
     public function mdf_remove_subscr() {
-        if (!isset($_POST['key']) OR!isset($_POST['user_id'])) {
+        if (!isset($_POST['key']) OR !is_user_logged_in()) {
             die('No data!');
         }
 
-        $user_id = sanitize_key($_POST['user_id']);
+        $user_id = get_current_user_id();
         $key = sanitize_key($_POST['key']);
         $subscr = get_user_meta($user_id, $this->user_meta_key, true);
         unset($subscr[$key]);

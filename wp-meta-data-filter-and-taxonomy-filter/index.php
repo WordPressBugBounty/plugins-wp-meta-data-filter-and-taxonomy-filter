@@ -7,13 +7,13 @@
   Tested up to: WP 6.8
   Author: realmag777
   Author URI: https://pluginus.net/
-  Version: 1.3.3.8
+  Version: 1.3.3.9
   Tags: ajax filter, custom fields filter, ecommerce filter, filter, filter for posts, posts filter, wordpress filter, jigoshop filter, taxonomies filter, meta filter, products filter, search, woocommerce, taxonomies filter widget, woocommerce filter  Text Domain: meta-data-filter
   Text Domain: meta-data-filter
   Domain Path: /languages
   Forum URI: https://pluginus.net/support/forum/mdtf-wordpress-meta-data-taxonomies-filter/
   WC requires at least: 3.6.0
-  WC tested up to: 10.1
+  WC tested up to: 10.2
  */
 
 
@@ -43,7 +43,7 @@ require plugin_dir_path(__FILE__) . 'ext/gmap.php';
 require plugin_dir_path(__FILE__) . 'ext/mdf_posts_messenger/mdf_posts_messenger.php';
 require plugin_dir_path(__FILE__) . 'ext/mdf_stat/index.php';
 
-//25-07-2025
+//01-10-2025
 class MetaDataFilter extends MetaDataFilterCore {
 
     const WIDGET_TAXONOMIES_ONLY = -1;

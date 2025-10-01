@@ -89,8 +89,8 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
         <?php
         echo '<b>' . esc_html__("<b>Button shortcode</b>", 'meta-data-filter') . '</b>';
         echo '<br /><i>';
-        echo esc_html('[mdf_search_button id="' . esc_html($post->ID) . '" title="' . esc_html($post->post_title) . '" popup_title="' . $post->post_title . '" popup_width=800]');
-        echo '</i>';
+		echo esc_html('[mdf_search_button id="' . esc_html($post->ID) . '" title="' . esc_html($post->post_title) . '" popup_title="' . $post->post_title . '" popup_width=800]');
+		echo '</i>';
     }
 
     public static function show_edit_columns($columns) {
@@ -196,7 +196,14 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
                     $onloadslideout = isset($args['onloadslideout']) ? $args['onloadslideout'] : 0;
                     wp_enqueue_script('mdf-slideout', self::get_application_uri() . 'js/jquery.tabSlideOut.v1.3.js', array('jquery'));
                     wp_enqueue_script('mdf-slideout-init', self::get_application_uri() . 'js/slideout_init.js', array('jquery'));
-                    $res = '<div class="mdf-slide-out-div" data-action="' . $action . '" data-location="' . $location . '" data-speed="' . $speed . '" data-toppos="' . $toppos . '" data-fixedposition="' . $fixedposition . '" data-onloadslideout="' . $onloadslideout . '"><a class="mdf-handle" href="#">Content</a>' . $res . '</div>';
+                    $res = '<div class="mdf-slide-out-div" '
+							. 'data-action="' . esc_attr($action) . '" '
+							. 'data-location="' . esc_attr($location) . '" '
+							. 'data-speed="' . esc_attr($speed) . '" '
+							. 'data-toppos="' . esc_attr($toppos) . '" '
+							. 'data-fixedposition="' . esc_attr($fixedposition) . '" '
+							. 'data-onloadslideout="' . esc_attr($onloadslideout) . '">'
+							. '<a class="mdf-handle" href="#">Content</a>' . $res . '</div>';
                 }
 
                 return $res;
@@ -264,8 +271,8 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             if (is_object($post)) {
                 if ($post->post_type == self::$slug_shortcodes) {
                     if (isset($_POST['shortcode_options'])) {
-                        $shortcode_options = self::sanitize_array_r($_POST['shortcode_options']);
-                        $html_items = self::sanitize_array_r($_POST['html_items']);
+						$shortcode_options = self::sanitize_array_r($_POST['shortcode_options']);
+						$html_items = self::sanitize_array_r($_POST['html_items']);
                         update_post_meta($post->ID, 'shortcode_options', $shortcode_options);
                         update_post_meta($post->ID, 'html_items', $html_items); //for sorting in shortcode
                     }
@@ -273,22 +280,21 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             }
         }
     }
-
-    public static function sanitize_array_r($arr) {
+	public static function sanitize_array_r($arr) {
         $newArr = array();
-        if (!is_array($arr)) {
-            return sanitize_text_field($arr);
-        }
+		if(!is_array($arr)){
+			return sanitize_text_field($arr);
+		}
         foreach ($arr as $key => $value) {
-            if ($key == 'show_items_count_text') {
-                $newArr[sanitize_key($key)] = wp_filter_post_kses($value);
-            } else {
-                $newArr[sanitize_key($key)] = ( is_array($value) ) ? self::sanitize_array_r($value) : sanitize_text_field($value);
-            }
+			if ($key == 'show_items_count_text') {
+				$newArr[sanitize_key($key)] = wp_filter_post_kses($value);
+			} else {
+				$newArr[sanitize_key($key)] = ( is_array($value) ) ? self::sanitize_array_r($value) : sanitize_text_field($value);
+			}
+            
         }
-        return $newArr;
-    }
-
+        return $newArr;		
+	}
     public static function get_sh_skins() {
         $skins = array();
         $src = self::get_application_path() . 'views/shortcode/skins/';
@@ -314,9 +320,9 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             if (!$rel_post) {
                 return sprintf(esc_html__('Shortcode with ID %s doesn exists', 'meta-data-filter'), $args['id']);
             }
-
-            $args = self::sanitize_array_r($args);
-
+			
+			$args = self::sanitize_array_r($args);
+			
             //+++
             $shortcode_options = self::get_shortcode_options($args['id']);
             wp_enqueue_script('mdf_search_button', self::get_application_uri() . 'js/shortcodes/mdf_search_button.js', array('jquery'));
@@ -344,7 +350,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
                 $_REQUEST['mdf_do_not_render_shortcode_tpl'] = true;
                 $_REQUEST['mdf_get_query_args_only'] = true;
                 do_shortcode('[meta_data_filter_results]');
-                $args = self::sanitize_array_r($_REQUEST['meta_data_filter_args']);
+                $args =  self::sanitize_array_r($_REQUEST['meta_data_filter_args']);
                 global $wp_query;
                 $wp_query = new WP_Query($args);
                 $_REQUEST['meta_data_filter_count'] = $wp_query->found_posts;
@@ -362,7 +368,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
         }
 
         if (isset($_REQUEST['current_post_id'])) {
-            $post_id = (int) $_REQUEST['current_post_id'];
+            $post_id = (int)$_REQUEST['current_post_id'];
         }
 
 
@@ -399,7 +405,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
     //shortcode
     public static function results_tax_navigation() {
         if (self::is_page_mdf_data() AND isset($_REQUEST['meta_data_filter_args']) AND isset($_REQUEST['meta_data_filter_args']['tax_query'])) {
-            $taxes = self::sanitize_array_r($_REQUEST['meta_data_filter_args']['tax_query']);
+            $taxes =  self::sanitize_array_r($_REQUEST['meta_data_filter_args']['tax_query']);
             unset($taxes['relation']);
 
             if (!empty($taxes)) {
@@ -454,18 +460,19 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             'animate_target' => '#mdf_results_by_ajax'//body
                         ), $atts));
 
+
         $class = "mdf_standard_paginate";
         if ($load_more) {
             $class = "mdf_load_more";
         }
 
         return "<div id='mdf_results_by_ajax' "
-                . "class='" . esc_attr($class) . "' "
-                . "data-animate='" . esc_attr($animate) . "' "
-                . "data-load_text='" . esc_attr($load_more_text) . "' "
-                . "data-animate-target='" . esc_attr($animate_target) . "' "
-                . "data-shortcode='" . esc_attr($shortcode) . "'>"
-                . do_shortcode("[$shortcode]") . "</div>";
+				. "class='" . esc_attr($class) . "' "
+				. "data-animate='" . esc_attr($animate) . "' "
+				. "data-load_text='" . esc_attr($load_more_text) . "' "
+				. "data-animate-target='" . esc_attr($animate_target) . "' "
+				. "data-shortcode='" . esc_attr($shortcode) . "'>" 
+				. do_shortcode("[$shortcode]") . "</div>";
     }
 
     public static function woocommerce_before_shop_loop() {
@@ -558,7 +565,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             $arr_ads = wc_get_product_visibility_term_ids();
             $product_not_in = array();
             foreach ($keys as $key) {
-                if (isset($arr_ads[$key]) OR !empty($arr_ads[$key])) {
+                if (isset($arr_ads[$key]) OR!empty($arr_ads[$key])) {
                     $product_not_in[] = $arr_ads[$key];
                 }
             }
@@ -965,7 +972,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
         if (isset($_POST['mdf_search_terms'])) {
 
             $data = array();
-            $mdf_search_terms = sanitize_text_field($_POST['mdf_search_terms']);
+			$mdf_search_terms = sanitize_text_field($_POST['mdf_search_terms']);
             $data['filter_data'] = json_decode(base64_decode($mdf_search_terms), true);
 
             $content = self::render_html(self::get_application_path() . 'views/shortcode/search_panel_terms.php', $data);
@@ -973,4 +980,6 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             die($content);
         }
     }
+
+
 }
