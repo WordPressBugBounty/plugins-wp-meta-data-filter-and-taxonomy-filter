@@ -17,10 +17,13 @@ jQuery(function () {
     jQuery('.js_cache_count_data_clear').on('click', function () {
         jQuery(this).next('span').html('clearing ...');
         var _this = this;
+        var _nonce = jQuery('#mdtf_ajax_nonce').val();
         var data = {
-            action: "mdf_cache_count_data_clear"
+            action: "mdf_cache_count_data_clear",
+            nonce: _nonce
         };
-        jQuery.post(ajaxurl, data, function () {
+        jQuery.post(ajaxurl, data, function (response) {
+            console.log(response);
             jQuery(_this).next('span').html('cleared!');
         });
 
@@ -30,10 +33,13 @@ jQuery(function () {
     jQuery('.js_cache_terms_data_clear').on('click', function () {
         jQuery(this).next('span').html('clearing ...');
         var _this = this;
+        var _nonce = jQuery('#mdtf_ajax_nonce').val();
         var data = {
-            action: "mdf_cache_terms_data_clear"
+            action: "mdf_cache_terms_data_clear",
+            nonce: _nonce
         };
-        jQuery.post(ajaxurl, data, function () {
+        jQuery.post(ajaxurl, data, function (response) {
+            console.log(response);
             jQuery(_this).next('span').html('cleared!');
         });
 

@@ -14,9 +14,9 @@
 
         <?php if (MetaDataFilter::$is_free): ?>
 
-            <?php if (time() < 1733094000): ?>
+            <?php if (time() < 1764676740): ?>
                 <a href="https://codecanyon.pluginus.net/item/wordpress-meta-data-taxonomies-filter/7002700" target="_blank" class="button" style="padding: 0; margin: 0; line-height: 0;">
-                    <img src="https://pluginus.net/wp-content/uploads/2024/11/envato-cybersale-2024.png" width="60" alt="Cybermonday AND Blackfriday" />
+                    <img src="https://pluginus.net/wp-content/uploads/2025/11/DiscountBanner_ItemPreviewBanner_Launch_616x215_50__x2.png" width="60" alt="Cybermonday AND Blackfriday" />
                 </a>&nbsp;
             <?php else: ?>
                 <a href="https://codecanyon.pluginus.net/item/wordpress-meta-data-taxonomies-filter/7002700" target="_blank" class="button button-primary"><?php esc_html_e("GET Premium version", 'meta-data-filter') ?></a>&nbsp;
@@ -26,7 +26,6 @@
 
         <?php esc_html_e("MDTF Settings", 'meta-data-filter') ?> v.<?php echo esc_html(MetaDataFilter::get_plugin_ver()) ?>&nbsp;&nbsp;&nbsp;<a href="https://wp-filter.com/documentation/" target="_blank" class="button"><?php esc_html_e("Read", 'meta-data-filter') ?></a>&nbsp;&amp;&nbsp; <a href="https://wp-filter.com/video/" target="_blank" class="button"><?php esc_html_e("Watch", 'meta-data-filter') ?></a>
     </h2>
-
 
     <?php if (!empty($_POST)): ?>
         <div class="updated settings-error" id="setting-error-settings_updated"><p><strong><?php esc_html_e("Settings are saved.", 'meta-data-filter') ?></strong></p></div>
@@ -103,9 +102,9 @@
                         </tr>
 
                         <tr valign="top">
-                            <th scope="row" class="mdf_for_premium_label"><label><?php esc_html_e("Results per page", 'meta-data-filter') ?></label></th>
+                            <th scope="row"><label><?php esc_html_e("Results per page", 'meta-data-filter') ?></label></th>
                             <td>
-                                <input type="text" class="regular-text" readonly="" value="0">
+                                <input type="text" class="regular-text" value="<?php echo esc_html(isset($data['results_per_page']) ? $data['results_per_page'] : 0) ?>" name="meta_data_filter_settings[results_per_page]">
                                 <p class="description"><?php esc_html_e("Leave this field empty if you want to use wordpress or your theme settings.", 'meta-data-filter') ?></p>
 
                             </td>
@@ -184,9 +183,9 @@
                         </tr>
 
                         <tr valign="top">
-                            <th scope="row" class="mdf_for_premium_label"><label><?php esc_html_e("Loading text", 'meta-data-filter') ?></label></th>
+                            <th scope="row"><label><?php esc_html_e("Loading text", 'meta-data-filter') ?></label></th>
                             <td>
-                                <input type="text" readonly="" class="regular-text" value="">
+                                <input type="text" class="regular-text" value="<?php echo esc_html(isset($data['loading_text']) ? $data['loading_text'] : ''); ?>" name="meta_data_filter_settings[loading_text]">
                                 <p class="description"><?php esc_html_e("Example: One Moment ...", 'meta-data-filter') ?></p>
                                 <br />
                                 <hr />
@@ -265,23 +264,21 @@
 
 
                         <tr valign="top">
-                            <th scope="row" class="mdf_for_premium_label"><label><?php esc_html_e("Toggle open sign", 'meta-data-filter') ?></label></th>
+                            <th scope="row"><label><?php esc_html_e("Toggle open sign", 'meta-data-filter') ?></label></th>
                             <td>
-                                <input type="text" readonly="" class="regular-text" value="+">
+                                <input type="text" class="regular-text" value="<?php echo esc_html(isset($data['toggle_open_sign']) ? $data['toggle_open_sign'] : '+') ?>" name="meta_data_filter_settings[toggle_open_sign]">
                                 <p class="description"><?php esc_html_e("Toggle open sign on front widget while using toggles for sections.", 'meta-data-filter') ?></p>
                             </td>
                         </tr>
 
 
                         <tr valign="top">
-                            <th scope="row" class="mdf_for_premium_label"><label><?php esc_html_e("Toggle close sign", 'meta-data-filter') ?></label></th>
+                            <th scope="row"><label><?php esc_html_e("Toggle close sign", 'meta-data-filter') ?></label></th>
                             <td>
-                                <input type="text" readonly="" class="regular-text" value="-">
+                                <input type="text" class="regular-text" value="<?php echo esc_html(isset($data['toggle_close_sign']) ? $data['toggle_close_sign'] : '-') ?>" name="meta_data_filter_settings[toggle_close_sign]">
                                 <p class="description"><?php esc_html_e("Toggle close sign on front widget while using toggles for sections.", 'meta-data-filter') ?></p>
                             </td>
                         </tr>
-
-
                         <tr valign="top">
                             <th scope="row"><label for="hide_search_button_shortcode"><?php esc_html_e("Hide [mdf_search_button] on mobile devices", 'meta-data-filter') ?></label></th>
                             <td>
@@ -824,10 +821,9 @@
                                 <th scope="row"><label><?php esc_html_e("External cron key (is recommended as flexible for timetable)", 'meta-data-filter') ?></label></th>
                                 <td>
                                     <input type="text" class="regular-text" value="<?php echo esc_attr($data['use_external_cron']); ?>" name="meta_data_filter_settings[use_external_cron]">
-                                    <p class="description"><?php esc_html_e('For external cron use the next link', 'meta-data-filter'); ?>: <i class="woof_cron_link" ><b><?php
-                                                echo get_home_url() . "?mdf_pm_cron_key=";
-                                                echo esc_attr($data['use_external_cron']);
-                                                ?></b></i><br />
+                                    <p class="description"><?php esc_html_e('For external cron use the next link', 'meta-data-filter'); ?>: <i class="woof_cron_link" ><b><?php echo get_home_url() . "?mdf_pm_cron_key=";
+                                    echo esc_attr($data['use_external_cron']);
+                                        ?></b></i><br />
     <?php esc_html_e('To reset the key, just delete it here and save the plugin settings OR write by hands your own. Key should be min 16 symbols.', 'meta-data-filter'); ?> </p>
                                 </td>
                             </tr>
@@ -1390,8 +1386,8 @@
 
         <p class="submit"><input type="submit" value="<?php esc_html_e("Assign", 'meta-data-filter') ?>" class="button button-primary" name="meta_data_filter_assign_filter_id"></p>
     </form>
+    <input type="hidden" id="mdtf_ajax_nonce" value="<?php echo wp_create_nonce('mdtf_ajax_nonce') ?>">
 
-</p>
+    </p>
 
 </div>
-

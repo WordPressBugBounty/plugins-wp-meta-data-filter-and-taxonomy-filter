@@ -355,7 +355,6 @@ class MetaDataFilterCore {
         $option_key = get_post_meta($post_id, $meta_key, true);
 
         $data = $wpdb->get_results($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_key='html_items' AND meta_value LIKE %s ORDER BY post_id ASC", '%' . $wpdb->esc_like($meta_key) . '%'), ARRAY_N);
-
         $section_id = 0;
         if (!empty($data)) {
             $section_id = $data[0][0];
@@ -402,13 +401,23 @@ class MetaDataFilterCore {
 
     //ajax
     public static function cache_count_data_clear() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        check_ajax_referer('mdtf_ajax_nonce', 'nonce');
         global $wpdb;
         $sql = "TRUNCATE TABLE " . $wpdb->prefix . self::$mdf_query_cache_table;
         $wpdb->query($sql);
+
+        wp_send_json_success("Cleared");
     }
 
     //ajax
     public static function cache_terms_data_clear() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        check_ajax_referer('mdtf_ajax_nonce', 'nonce');
         global $wpdb;
         $res = $wpdb->get_results("SELECT * FROM {$wpdb->options} WHERE option_name LIKE '_transient_mdf_terms_cache_%'");
 
@@ -417,6 +426,7 @@ class MetaDataFilterCore {
                 delete_transient(str_replace('_transient_', '', $transient->option_name));
             }
         }
+        wp_send_json_success("Cleared");
     }
 
     public static function escape($value) {
