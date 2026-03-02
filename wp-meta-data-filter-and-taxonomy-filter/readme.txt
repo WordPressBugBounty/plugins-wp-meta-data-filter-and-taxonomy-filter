@@ -5,7 +5,7 @@ Tags: filter,products filter,taxonomies filter,meta filter,woocommerce
 Requires at least: 4.1.0
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 
 The main idea of the plugin – make your WordPress site content is filterable and searchable by meta fields and taxonomies on the same time.
 
@@ -176,6 +176,9 @@ R: You can report security bugs through the Patchstack Vulnerability Disclosure 
 
 
 == Changelog ==
+
+= 1.3.6 =
+- 1 security issues are fixed, thanks to Zaim and Patchstack
 
 = 1.3.5 =
 - 1 security issues are fixed, thanks to D01EXPLOIT and Patchstack

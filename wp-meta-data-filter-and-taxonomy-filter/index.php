@@ -7,7 +7,7 @@
   Tested up to: WP 6.9
   Author: realmag777
   Author URI: https://pluginus.net/
-  Version: 1.3.5
+  Version: 1.3.6
   Tags: ajax filter, custom fields filter, ecommerce filter, filter, filter for posts, posts filter, wordpress filter, jigoshop filter, taxonomies filter, meta filter, products filter, search, woocommerce, taxonomies filter widget, woocommerce filter  Text Domain: meta-data-filter
   Text Domain: meta-data-filter
   Domain Path: /languages
@@ -44,7 +44,7 @@ require plugin_dir_path(__FILE__) . 'ext/gmap.php';
 require plugin_dir_path(__FILE__) . 'ext/mdf_posts_messenger/mdf_posts_messenger.php';
 require plugin_dir_path(__FILE__) . 'ext/mdf_stat/index.php';
 
-//19-12-2025
+//20-02-2026
 class MetaDataFilter extends MetaDataFilterCore {
 
     const WIDGET_TAXONOMIES_ONLY = -1;
