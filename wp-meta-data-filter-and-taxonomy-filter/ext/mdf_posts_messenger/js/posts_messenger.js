@@ -8,7 +8,8 @@ function mdf_init_posts_messenger() {
             action: "mdf_posts_messenger_add_subscr",
             user_id: jQuery(this).attr('data-user'),
             attr: jQuery(".hidden_page_mdf_for_ajax").val(),
-            curr_link: window.location.href
+            curr_link: window.location.href,
+            nonce: mdf_posts_messenger_data.nonce
         };
         jQuery.post(ajaxurl, data, function (content) {
             if (content) {
@@ -40,7 +41,8 @@ function mdf_init_remove_btn() {
         var data = {
             action: "mdf_posts_messenger_remove_subscr",
             user_id: jQuery(this).attr('data-user'),
-            key: jQuery(this).attr('data-key')
+            key: jQuery(this).attr('data-key'),
+            nonce: mdf_posts_messenger_data.nonce
         };
 
         jQuery.post(ajaxurl, data, function (content) {

@@ -66,7 +66,7 @@ class MDF_POSTS_MESSENGER {
     public function mdf_unsubscr() {
         $this->mdf_external_cron_init(); // It checks key of the external cron
 
-        if (!isset($_GET['id_user']) OR!isset($_GET['key']) OR!isset($_GET['mdf_skey'])) {
+        if (!isset($_GET['id_user']) OR !isset($_GET['key']) OR !isset($_GET['mdf_skey'])) {
             return;
         }
 
@@ -86,7 +86,7 @@ class MDF_POSTS_MESSENGER {
 
     //Check special constant link 
     public function mdf_get_page_by_link($arg) {
-        if (isset($_REQUEST['mdf_mess_link']) AND isset($_REQUEST['mdf_mess_id']) AND!isset($_REQUEST['mdf_page'])) {
+        if (isset($_REQUEST['mdf_mess_link']) AND isset($_REQUEST['mdf_mess_id']) AND !isset($_REQUEST['mdf_page'])) {
             $arg = $this->get_mdf_string(sanitize_text_field($_REQUEST['mdf_mess_link']), sanitize_text_field($_REQUEST['mdf_mess_id']));
         }
         return $arg;
@@ -147,8 +147,12 @@ class MDF_POSTS_MESSENGER {
     public function mdf_add_subscr() {
         global $wpdb, $wp_query;
 
-        if (!isset($_POST['attr']) OR !is_user_logged_in() OR!isset($_POST['curr_link'])) {
+        if (!isset($_POST['attr']) OR !is_user_logged_in() OR !isset($_POST['curr_link'])) {
             die("Wrong data");
+        }
+
+        if (!isset($_POST['nonce']) OR !wp_verify_nonce($_POST['nonce'], 'mdf_posts_messenger')) {
+            die("Wrong nonce");
         }
 
         //***
@@ -230,6 +234,10 @@ class MDF_POSTS_MESSENGER {
             die('No data!');
         }
 
+        if (!isset($_POST['nonce']) OR !wp_verify_nonce($_POST['nonce'], 'mdf_posts_messenger')) {
+            die("Wrong nonce");
+        }
+
         $user_id = get_current_user_id();
         $key = sanitize_key($_POST['key']);
         $subscr = get_user_meta($user_id, $this->user_meta_key, true);
@@ -242,7 +250,7 @@ class MDF_POSTS_MESSENGER {
     // wp cron  functions
     public function make_send_emails($reset = false) {
 
-        if ($this->subscr_period_option != 'no' AND!empty($this->subscr_period_option)) {
+        if ($this->subscr_period_option != 'no' AND !empty($this->subscr_period_option)) {
             if ($this->wp_cron_period) {
                 $this->mdf_wpcron_init();
             }
@@ -318,7 +326,8 @@ class MDF_POSTS_MESSENGER {
         wp_enqueue_script('mdf_posts_messeger_js', MDTF_MESSENGER_URI . '/js/posts_messenger.js', array('jquery'));
         wp_enqueue_style('mdf_posts_messeger_css', MDTF_MESSENGER_URI . '/css/posts_messenger.css');
         $translation_array = array(
-            'mdf_confirm_lang' => esc_html__('Are you sure?', 'meta-data-filter')
+            'mdf_confirm_lang' => esc_html__('Are you sure?', 'meta-data-filter'),
+            'nonce' => wp_create_nonce('mdf_posts_messenger')
         );
         wp_localize_script('mdf_posts_messeger_js', 'mdf_posts_messenger_data', $translation_array);
     }
@@ -341,16 +350,18 @@ class MDF_POSTS_MESSENGER {
             return false;
         }
     }
-	public static function sanitize_array_r($arr) {
+
+    public static function sanitize_array_r($arr) {
         $newArr = array();
-		if(!is_array($arr)){
-			return sanitize_text_field($arr);
-		}
+        if (!is_array($arr)) {
+            return sanitize_text_field($arr);
+        }
         foreach ($arr as $key => $value) {
             $newArr[sanitize_key($key)] = ( is_array($value) ) ? self::sanitize_array_r($value) : sanitize_text_field($value);
         }
-        return $newArr;		
-	}
+        return $newArr;
+    }
+
     //Send messenges functions
     public function mdf_do_mesenger_action() { //return;
         global $wpdb;
@@ -359,7 +370,7 @@ class MDF_POSTS_MESSENGER {
 
         foreach ($users as $user) {
             $data_user = get_user_meta($user->ID, $this->user_meta_key, true); // get subscribtion of user 
-            if (empty($data_user) OR count($data_user) <= 0 OR!is_array($data_user)) {
+            if (empty($data_user) OR count($data_user) <= 0 OR !is_array($data_user)) {
                 continue;
             }
             foreach ($data_user as $key => $data_subscr) {    // check subcr
@@ -393,7 +404,6 @@ class MDF_POSTS_MESSENGER {
                     $data_email['header_email'] = $this->header_email;
                     $data_email['subscr'] = $data_subscr;
                     $data_email['last_email'] = $last_email;
-
 
                     if ($last_email) {
                         unset($data_user[$key]);
@@ -531,7 +541,6 @@ class MDF_POSTS_MESSENGER {
         }
         return $newArr;
     }
-
 }
 
 $mdf_messenger = new MDF_POSTS_MESSENGER();
