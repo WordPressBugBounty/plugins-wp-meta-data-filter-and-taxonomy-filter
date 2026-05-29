@@ -14,9 +14,9 @@
 
         <?php if (MetaDataFilter::$is_free): ?>
 
-            <?php if (time() < 1764676740): ?>
+            <?php if (time() < 1733094000): ?>
                 <a href="https://codecanyon.pluginus.net/item/wordpress-meta-data-taxonomies-filter/7002700" target="_blank" class="button" style="padding: 0; margin: 0; line-height: 0;">
-                    <img src="https://pluginus.net/wp-content/uploads/2025/11/DiscountBanner_ItemPreviewBanner_Launch_616x215_50__x2.png" width="60" alt="Cybermonday AND Blackfriday" />
+                    <img src="https://pluginus.net/wp-content/uploads/2024/11/envato-cybersale-2024.png" width="60" alt="Cybermonday AND Blackfriday" />
                 </a>&nbsp;
             <?php else: ?>
                 <a href="https://codecanyon.pluginus.net/item/wordpress-meta-data-taxonomies-filter/7002700" target="_blank" class="button button-primary"><?php esc_html_e("GET Premium version", 'meta-data-filter') ?></a>&nbsp;

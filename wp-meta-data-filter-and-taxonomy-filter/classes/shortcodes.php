@@ -661,7 +661,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
 
             <?php do_action('woocommerce_before_shop_loop'); ?>
 
-            <?php //woocommerce_product_loop_start();        ?>
+            <?php //woocommerce_product_loop_start();       ?>
 
             <?php
             ob_start();
@@ -679,7 +679,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             echo ob_get_clean();
             ?>
 
-            <?php //woocommerce_product_loop_end();        ?>
+            <?php //woocommerce_product_loop_end();       ?>
 
             <?php
         else:
