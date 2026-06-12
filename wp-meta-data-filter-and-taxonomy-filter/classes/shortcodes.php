@@ -832,7 +832,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
 
         //+++
         ob_start();
-        get_template_part('mdf_templates/' . $template . '/index');
+        get_template_part('mdf_templates/' . basename($template) . '/index');
         $out = ob_get_clean();
         wp_reset_postdata();
 
