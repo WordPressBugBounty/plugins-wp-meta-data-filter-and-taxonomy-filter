@@ -1,3 +1,4 @@
+<?php if (!defined('ABSPATH')) die('No direct access allowed'); ?>
 <?php
 global $wp_query;
 $settings = MetaDataFilterCore::get_settings();
@@ -53,8 +54,8 @@ if (is_tax()) {
     //+++
     var mdf_slug_cat = "<?php echo esc_html(MetaDataFilterCore::$slug_cat); ?>";
 
-    var mdf_tooltip_theme = "<?php echo esc_html($settings['tooltip_theme'] ? $settings['tooltip_theme'] : 'shadow'); ?>";
-    var tooltip_max_width = parseInt(<?php echo((int) $settings['tooltip_max_width'] ? (int) $settings['tooltip_max_width'] : 220); ?>, 10);
+    var mdf_tooltip_theme = "<?php echo esc_html(!empty($settings['tooltip_theme']) ? $settings['tooltip_theme'] : 'shadow'); ?>";
+    var tooltip_max_width = parseInt(<?php echo(!empty($settings['tooltip_max_width']) ? (int) $settings['tooltip_max_width'] : 220); ?>, 10);
     var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
     var mdf_front_qtrans_lang = "";
     var mdf_front_wpml_lang = "<?php
@@ -112,7 +113,10 @@ if (is_home() OR is_front_page()) {
     var mdf_use_custom_icheck = <?php echo(MetaDataFilterCore::get_setting('use_custom_icheck') ? 1 : 0) ?>;
 <?php
 $icheck_skin = MetaDataFilterCore::get_setting('icheck_skin');
-$icheck_skin = explode('_', $icheck_skin);
+$icheck_skin = explode('_', (string) $icheck_skin);
+if (!isset($icheck_skin[1])) {
+    $icheck_skin[1] = '';
+}
 ?>
     var icheck_skin = {};
     icheck_skin.skin = "<?php echo esc_html($icheck_skin[0]) ?>";

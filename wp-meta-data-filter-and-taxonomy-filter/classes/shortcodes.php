@@ -82,15 +82,18 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
 
     public static function draw_shortcode_meta_box() {
         global $post;
-        echo '<b>' . esc_html__("Search form shortcode", 'meta-data-filter') . '</b>';
+        //shortcodes to copy: shown as code, escaped once
+        $button_shortcode = '[mdf_search_button id="' . (int) $post->ID . '" title="' . $post->post_title . '" popup_title="' . $post->post_title . '" popup_width=800]';
         ?>
-        <br />
-        <i>[mdf_search_form id="<?php echo esc_html($post->ID) ?>"]</i><br /><br />
+        <p class="mdtf-shortcode-copy">
+            <strong><?php esc_html_e("Search form shortcode", 'meta-data-filter') ?></strong><br />
+            <code>[mdf_search_form id="<?php echo (int) $post->ID ?>"]</code>
+        </p>
+        <p class="mdtf-shortcode-copy">
+            <strong><?php esc_html_e("Button shortcode", 'meta-data-filter') ?></strong><br />
+            <code><?php echo esc_html($button_shortcode) ?></code>
+        </p>
         <?php
-        echo '<b>' . esc_html__("<b>Button shortcode</b>", 'meta-data-filter') . '</b>';
-        echo '<br /><i>';
-        echo esc_html('[mdf_search_button id="' . esc_html($post->ID) . '" title="' . esc_html($post->post_title) . '" popup_title="' . $post->post_title . '" popup_width=800]');
-        echo '</i>';
     }
 
     public static function show_edit_columns($columns) {
@@ -208,13 +211,17 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
 
                 return $res;
             } else {
-                return esc_html__('This shortcode does not exists!', 'meta-data-filter');
+                return esc_html__('This shortcode does not exist!', 'meta-data-filter');
             }
         }
     }
 
 //ajax
     public static function draw_shortcode_html_items_ajx() {
+        //shortcode edit screen only
+        if (!current_user_can('edit_posts')) {
+            wp_die('0');
+        }
         wp_die(self::draw_shortcode_html_items(array('shortcode_cat' => (int) $_REQUEST['term_id'])));
     }
 
@@ -287,7 +294,8 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             return sanitize_text_field($arr);
         }
         foreach ($arr as $key => $value) {
-            if ($key == 'show_items_count_text') {
+            //strict: on PHP 7.4 the numeric key 0 is loosely equal to any non-numeric string
+            if ((string) $key === 'show_items_count_text') {
                 $newArr[sanitize_key($key)] = wp_filter_post_kses($value);
             } else {
                 $newArr[sanitize_key($key)] = ( is_array($value) ) ? self::sanitize_array_r($value) : sanitize_text_field($value);
@@ -319,7 +327,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
         if (isset($args['id']) AND is_numeric($args['id'])) {
             $rel_post = get_post($args['id']);
             if (!$rel_post) {
-                return sprintf(esc_html__('Shortcode with ID %s doesn exists', 'meta-data-filter'), $args['id']);
+                return sprintf(esc_html__('Shortcode with ID %s does not exist', 'meta-data-filter'), $args['id']);
             }
 
             $args = self::sanitize_array_r($args);
@@ -406,8 +414,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
     //shortcode
     public static function results_tax_navigation() {
         if (self::is_page_mdf_data() AND isset($_REQUEST['meta_data_filter_args']) AND isset($_REQUEST['meta_data_filter_args']['tax_query'])) {
-            $taxes = self::sanitize_array_r($_REQUEST['meta_data_filter_args']['tax_query']);
-            unset($taxes['relation']);
+            $taxes = self::flatten_tax_query(self::sanitize_array_r($_REQUEST['meta_data_filter_args']['tax_query']));
 
             if (!empty($taxes)) {
                 $tmp = array();
@@ -426,15 +433,21 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
                     if (is_array($terms)) {
                         foreach ($terms as $term_id) { // now loop through all the slugs
                             $term = get_term_by('id', $term_id, $tax_name); // and based on that slug, get the term object
-                            if ($term) {
+                            if ($term AND !is_wp_error(get_term_link($term, $tax_name))) {
                                 $output .= '<a target="_blank" href="' . get_term_link($term, $tax_name) . '">' . $term->name . '</a>&nbsp;&nbsp;'; // and add the term's name to our output buffer followed by a comma (,)
                             }
                         }
                     } else {
                         $term = get_term_by('id', $terms, $tax_name); // and based on that slug, get the term object
+                        if (!$term) {
+                            continue;
+                        }
                         $parents = self::get_taxonomy_parents_all($term->term_id, $tax_name);
                         $buffer = array();
                         foreach ($parents as $term) {
+                            if (is_wp_error(get_term_link($term, $tax_name))) {
+                                continue;
+                            }
                             $buffer[] = '<a target="_blank" href="' . get_term_link($term, $tax_name) . '">' . $term->name . '</a>&nbsp;&nbsp;';
                         }
                         $buffer = array_reverse($buffer);
@@ -832,7 +845,7 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
 
         //+++
         ob_start();
-        get_template_part('mdf_templates/' . basename($template) . '/index');
+        get_template_part('mdf_templates/' . self::sanitize_template_path($template) . '/index');
         $out = ob_get_clean();
         wp_reset_postdata();
 
@@ -906,7 +919,27 @@ class MetaDataFilterShortcodes extends MetaDataFilterCore {
             }
 
             if ($post_id > 0) {
-                return self::get_field($atts['key'], $post_id, $look_for_reflection);
+                //only data of posts the visitor may see (the shortcode takes any post ID and any meta key)
+                $mdf_post = get_post($post_id);
+                $is_public = ($mdf_post AND $mdf_post->post_status === 'publish' AND empty($mdf_post->post_password) AND is_post_type_viewable($mdf_post->post_type));
+                if (!$mdf_post OR (!$is_public AND !current_user_can('read_post', $mdf_post->ID))) {
+                    return '';
+                }
+                //the meta of the post being shown: any key, also protected ("_") ones, as before.
+                //Another post given by post_id: protected meta is internal data, only product data of WooCommerce
+                //is shown (the list can be extended by the filter)
+                $is_current_post = ((int) $post_id === (int) get_the_ID());
+                if (!$is_current_post AND is_protected_meta((string) $atts['key'], 'post')) {
+                    $allowed_protected = (array) apply_filters('mdf_value_allowed_protected_keys', array(
+                        '_price', '_regular_price', '_sale_price', '_sku', '_stock', '_stock_status', '_weight', '_length', '_width', '_height',
+                        '_wc_average_rating', '_wc_review_count'
+                    ), $post_id);
+                    if (!in_array((string) $atts['key'], $allowed_protected, true)) {
+                        return '';
+                    }
+                }
+                $value = self::get_field($atts['key'], $post_id, $look_for_reflection);
+                return is_scalar($value) ? wp_kses_post((string) $value) : '';
             }
         }
 

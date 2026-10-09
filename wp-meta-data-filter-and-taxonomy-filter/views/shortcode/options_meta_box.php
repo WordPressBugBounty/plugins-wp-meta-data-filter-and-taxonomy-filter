@@ -234,7 +234,7 @@
                                 </select>&nbsp;
                                 <?php $is_checked = (int) @$shortcode_options['options']['taxonomies'][$tax_key]; ?>
 
-                                <input type="text" class="text mdtf-w100p" placeholder="<?php printf(esc_html__('exluded terms ids for %s. Example: 11,22,33', 'meta-data-filter'), $tax_name) ?>" name="shortcode_options[options][excluded_terms][<?php echo esc_attr($tax_key) ?>]" value="<?php echo esc_html(isset($shortcode_options['options']['excluded_terms'][$tax_key])?$shortcode_options['options']['excluded_terms'][$tax_key]:'') ?>"><br />
+                                <input type="text" class="text mdtf-w100p" placeholder="<?php printf(esc_html__('excluded terms ids for %s. Example: 11,22,33', 'meta-data-filter'), $tax_name) ?>" name="shortcode_options[options][excluded_terms][<?php echo esc_attr($tax_key) ?>]" value="<?php echo esc_html(isset($shortcode_options['options']['excluded_terms'][$tax_key])?$shortcode_options['options']['excluded_terms'][$tax_key]:'') ?>"><br />
                             </li>
                         <?php endforeach; ?>
                     </ul>

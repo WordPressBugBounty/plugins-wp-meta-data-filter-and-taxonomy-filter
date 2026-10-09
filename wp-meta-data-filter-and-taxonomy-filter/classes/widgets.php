@@ -8,7 +8,7 @@ class MetaDataFilter_Search extends WP_Widget {
 
         parent::__construct(__CLASS__, esc_html__('MDTF', 'meta-data-filter'), array(
             'classname' => __CLASS__,
-            'description' => esc_html__('Meta Data Filter - search and filter data by taxonomies and meta fileds.', 'meta-data-filter')
+            'description' => esc_html__('Meta Data Filter - search and filter data by taxonomies and meta fields.', 'meta-data-filter')
                 )
         );
 	add_action('admin_footer', array($this, 'widget_enqueue'));
@@ -17,12 +17,13 @@ class MetaDataFilter_Search extends WP_Widget {
 		// wp_register_script('meta_data_filter_widget', MetaDataFilterCore::get_application_uri() . 'js/widget_back.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'),uniqid());
     }
 function widget_enqueue() {
+	//widget scripts only where MDTF forms are shown (it was loaded on every admin page)
+	if (!MetaDataFilter::is_mdtf_admin_screen()) {
+		return;
+	}
 	wp_enqueue_script('mdf_popup', MetaDataFilter::get_application_uri() . 'js/pn_popup/pn_advanced_wp_popup.js', array('jquery', 'jquery-ui-core', 'jquery-ui-draggable'));
     wp_enqueue_style('mdf_popup', MetaDataFilter::get_application_uri() . 'js/pn_popup/styles.css');
     wp_enqueue_script('meta_data_filter_widget', MetaDataFilterCore::get_application_uri() . 'js/widget_back.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'),uniqid());
-	wp_localize_script( 'meta_data_filter_widget', 'mdtf_lang', array(
-		'update_widget' => esc_html__('Please save and update widgets', 'meta-data-filter'),
-	) );
 	//wp_add_inline_script( 'meta_data_filter_widget', $this->get_js_inline(), 'after');
 }	
    public function get_js_inline() {
@@ -46,6 +47,8 @@ function widget_enqueue() {
         $args['instance'] = $instance;
         $args['sidebar_id'] = (isset($args['id']))?$args['id']:'';
         $args['sidebar_name'] = (isset($args['name']))?$args['name']:'';
+        //a widget outside a sidebar is drawn again by the ajax recount from these signed options
+        list($args['widget_redraw_data'], $args['widget_redraw_hash']) = MetaDataFilterCore::get_widget_redraw_data($this, $instance, $args);
         MetaDataFilter::front_script_includer();
         MetaDataFilterHtml::render_html_e(MetaDataFilterCore::get_application_path() . 'views/widgets/search.php', $args);
     }
@@ -74,7 +77,13 @@ function widget_enqueue() {
         $instance['taxonomies_options_select_size'] = $new_instance['taxonomies_options_select_size'];
         $instance['taxonomies_options_tax_title'] = $new_instance['taxonomies_options_tax_title'];
         $instance['taxonomies_options_checkbox_max_height'] = $new_instance['taxonomies_options_checkbox_max_height'];
-        $instance['taxonomies_options_behaviour'] = $new_instance['taxonomies_options_behaviour'];
+        //AND/OR between taxonomies, the flag tells that OR was saved by a version which applies it (see get_widget_tax_bool())
+        $instance['taxonomies_options_behaviour'] = MetaDataFilterCore::normalize_meta_data_filter_bool(isset($new_instance['taxonomies_options_behaviour']) ? $new_instance['taxonomies_options_behaviour'] : 'AND');
+        if ($instance['taxonomies_options_behaviour'] === 'OR') {
+            $instance['taxonomies_options_behaviour_ver'] = '2.4.0';
+        } else {
+            unset($instance['taxonomies_options_behaviour_ver']);
+        }
         $instance['taxonomies_options_show_count'] = (isset($new_instance['taxonomies_options_show_count'])) ? $new_instance['taxonomies_options_show_count'] : false;
         $instance['taxonomies_options_post_recount_dyn'] = (isset($new_instance['taxonomies_options_post_recount_dyn'])) ? $new_instance['taxonomies_options_post_recount_dyn'] : false;
         $instance['taxonomies_options_hide_terms_0'] = (isset($new_instance['taxonomies_options_hide_terms_0'])) ? $new_instance['taxonomies_options_hide_terms_0'] : false;
@@ -171,6 +180,8 @@ class MetaDataFilter_TaxSearch extends WP_Widget {
         $args['instance'] = $instance;
         $args['sidebar_id'] = (isset($args['id']))?$args['id']:'';
         $args['sidebar_name'] = (isset($args['name']))?$args['name']:'';
+        //a widget outside a sidebar is drawn again by the ajax recount from these signed options
+        list($args['widget_redraw_data'], $args['widget_redraw_hash']) = MetaDataFilterCore::get_widget_redraw_data($this, $instance, $args);
         MetaDataFilter::front_script_includer();
         MetaDataFilterHtml::render_html_e(MetaDataFilterCore::get_application_path() . 'views/widgets/search.php', $args);
     }
@@ -215,7 +226,13 @@ class MetaDataFilter_TaxSearch extends WP_Widget {
         $instance['taxonomies_options_select_size'] = $new_instance['taxonomies_options_select_size'];
         $instance['taxonomies_options_tax_title'] = $new_instance['taxonomies_options_tax_title'];
         $instance['taxonomies_options_checkbox_max_height'] = $new_instance['taxonomies_options_checkbox_max_height'];
-        $instance['taxonomies_options_behaviour'] = $new_instance['taxonomies_options_behaviour'];
+        //AND/OR between taxonomies, the flag tells that OR was saved by a version which applies it (see get_widget_tax_bool())
+        $instance['taxonomies_options_behaviour'] = MetaDataFilterCore::normalize_meta_data_filter_bool(isset($new_instance['taxonomies_options_behaviour']) ? $new_instance['taxonomies_options_behaviour'] : 'AND');
+        if ($instance['taxonomies_options_behaviour'] === 'OR') {
+            $instance['taxonomies_options_behaviour_ver'] = '2.4.0';
+        } else {
+            unset($instance['taxonomies_options_behaviour_ver']);
+        }
         $instance['taxonomies_options_show_count'] = (isset($new_instance['taxonomies_options_show_count'])) ? $new_instance['taxonomies_options_show_count'] : false;
         $instance['taxonomies_options_post_recount_dyn'] = (isset($new_instance['taxonomies_options_post_recount_dyn'])) ? $new_instance['taxonomies_options_post_recount_dyn'] : false;
         $instance['taxonomies_options_hide_terms_0'] = (isset($new_instance['taxonomies_options_hide_terms_0'])) ? $new_instance['taxonomies_options_hide_terms_0'] : false;

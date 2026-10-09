@@ -697,6 +697,9 @@ function mdf_ajax_data_recount(form_id, slug, simple_form_redraw, load_more) {
     var widget_id = 0;
     var sidebar_name = "";
     var sidebar_id = 0;
+    //a widget outside a sidebar (inside a block) is drawn again from its signed options
+    var widget_redraw = '';
+    var widget_redraw_hash = '';
 
     if (jQuery("#" + form_id).hasClass('mdf_shortcode_form')) {
         type = 'shortcode';
@@ -707,6 +710,8 @@ function mdf_ajax_data_recount(form_id, slug, simple_form_redraw, load_more) {
         sidebar_id = jQuery("#" + form_id).data('sidebar-id');
         sidebar_name = jQuery("#" + form_id).data('sidebar-name');
         widget_id = jQuery("#" + form_id).data('widget-id');
+        widget_redraw = jQuery("#" + form_id).attr('data-widget-redraw') || '';
+        widget_redraw_hash = jQuery("#" + form_id).attr('data-widget-redraw-hash') || '';
     }
 
     //***
@@ -723,6 +728,8 @@ function mdf_ajax_data_recount(form_id, slug, simple_form_redraw, load_more) {
         shortcode_id: shortcode_id,
         sidebar_id: sidebar_id,
         sidebar_name: sidebar_name,
+        widget_redraw: widget_redraw,
+        widget_redraw_hash: widget_redraw_hash,
         widget_id: widget_id,
         mode: 'submit',
         mdf_current_term_id: mdf_current_term_id,
@@ -750,12 +757,15 @@ function mdf_ajax_data_recount(form_id, slug, simple_form_redraw, load_more) {
         mdf_hide_stat_info_popup();
         if (type == 'shortcode') {
             jQuery("#" + form_id).parents('.mdf_shortcode_container').replaceWith(response.form);
-        } else {
+        } else if (response.form) {
+            //nothing drawn (the widget is not found, its signed options do not match): the widget stays as it is
             jQuery('#pn_html_buffer2').html(response.form);
             var widget = jQuery('#pn_html_buffer2').find('.widget-meta-data-filter').clone();
             //jQuery("#" + form_id).parents('.widget-meta-data-filter').replaceWith(widget);
             jQuery("#" + form_id).parents('.widget-meta-data-filter').replaceWith(response.form);
             jQuery('#pn_html_buffer2').html("");
+            //titles of empty sections are checked before the sliders are drawn, as on the page load
+            mdf_check_empty_sections('#meta_data_filter_' + jQuery(widget).find('form').data('unique-id'));
             mdf_draw_ui_slider_items(false, jQuery(widget).find('form').data('unique-id'));
 
             mdf_hide_empty_blocks_titles();
@@ -1258,10 +1268,10 @@ function mdf_init_multislect_emulator() {
 
 }
 
-//hide title of the empty section 
-function mdf_check_empty_sections() {
+//hide title of the empty section (scope: a form redrawn by ajax, the whole page by default)
+function mdf_check_empty_sections(scope) {
     if (mdf_settings_data.hide_empty_title != undefined && mdf_settings_data.hide_empty_title == 1) {
-        jQuery('.data-filter-section-title').each(function (i, elem) {
+        jQuery(scope ? jQuery(scope).find('.data-filter-section-title') : jQuery('.data-filter-section-title')).each(function (i, elem) {
             if (jQuery(elem).siblings().text().trim() == "") {
                 jQuery(this).hide();
             }

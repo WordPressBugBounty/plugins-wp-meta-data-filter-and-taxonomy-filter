@@ -45,7 +45,7 @@ if (class_exists('MetaDataFilter') AND MetaDataFilter::is_page_mdf_data()) {
     <script>
         //DYNAMIC SCRIPT
         jQuery(function () {
-            mdf_gmap_draw_<?php echo esc_attr($inique_id) ?>(<?php echo $zoom ?>, "<?php echo esc_attr(strtolower($maptype)) ?>");
+            mdf_gmap_draw_<?php echo esc_attr($inique_id) ?>(<?php echo (int) (isset($zoom) ? $zoom : 0) ?>, <?php echo wp_json_encode(strtolower((string) (isset($maptype) ? $maptype : ''))) ?>);
         });
 
         function mdf_gmap_draw_<?php echo esc_attr($inique_id) ?>(zoom, maptype) {
@@ -59,7 +59,8 @@ if (class_exists('MetaDataFilter') AND MetaDataFilter::is_page_mdf_data()) {
                 continue;
             }
             ?>
-                    ['<?php echo get_the_title($value['post_id']) ?>', <?php echo $value['latitude'] ?>, <?php echo $value['longitude'] ?>],
+                    <?php //values for JavaScript: the title as a JSON string, coordinates as numbers (post meta may hold anything) ?>
+                    [<?php echo wp_json_encode(get_the_title($value['post_id'])) ?>, <?php echo (float) $value['latitude'] ?>, <?php echo (float) $value['longitude'] ?>],
         <?php endforeach; ?>
     <?php endif; ?>
             ];
@@ -90,7 +91,7 @@ if (class_exists('MetaDataFilter') AND MetaDataFilter::is_page_mdf_data()) {
                 continue;
             }
             ?>
-                    ['<div class="info_content"><?php echo htmlspecialchars($value['desc'], ENT_QUOTES) ?></div>'],
+                    [<?php echo wp_json_encode('<div class="info_content">' . htmlspecialchars((string) $value['desc'], ENT_QUOTES) . '</div>') ?>],
         <?php endforeach; ?>
     <?php endif; ?>
             ];
@@ -121,7 +122,8 @@ if (class_exists('MetaDataFilter') AND MetaDataFilter::is_page_mdf_data()) {
 
             // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
             var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function (event) {
-                this.setZoom(zoom);
+                //no zoom attribute (0): keep the zoom of fitBounds
+                if (zoom > 0) { this.setZoom(zoom); }
                 google.maps.event.removeListener(boundsListener);
             });
 

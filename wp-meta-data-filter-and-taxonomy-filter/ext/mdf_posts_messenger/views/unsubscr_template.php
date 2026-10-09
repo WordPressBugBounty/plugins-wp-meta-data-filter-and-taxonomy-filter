@@ -1,3 +1,4 @@
+<?php if (!defined('ABSPATH')) die('No direct access allowed'); ?>
 <style>
     /* THIS IS EMAIL TEMPLATE AND STYLES SHOULD BE HERE */
     .woof_notice{padding: 30px;background: #ececec;margin: 0 auto;margin-top: 8%;max-width: 400px;text-align: center;}   

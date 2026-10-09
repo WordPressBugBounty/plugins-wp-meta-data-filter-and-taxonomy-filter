@@ -136,21 +136,27 @@ $settings = self::get_settings();
 <h3><?php esc_html_e('Meta options', 'meta-data-filter') ?></h3>
 
 
-<p style="display:none;">
-    <label for="<?php echo esc_attr($widget->get_field_id('and_or')); ?>"><?php esc_html_e('AND/OR behaviour for meta filelds', 'meta-data-filter') ?>:</label>
+<p>
+    <label for="<?php echo esc_attr($widget->get_field_id('and_or')); ?>"><?php esc_html_e('AND/OR behaviour for meta fields', 'meta-data-filter') ?>:</label>
     <?php
     $sett = array(
         'AND' => esc_html__('AND', 'meta-data-filter'),
         'OR' => esc_html__('OR', 'meta-data-filter'),
             //'BOTH'=>esc_html__('show AND/OR filter', 'meta-data-filter'),
     );
+    //defaults keep 'and' in lower case
+    $and_or_saved = strtoupper((string) $instance['and_or']);
+    //BOTH is not offered for new widgets, but a widget saved with it must not lose it on the next save
+    if ($and_or_saved == 'BOTH') {
+        $sett['BOTH'] = esc_html__('show AND/OR filter', 'meta-data-filter');
+    }
     ?>
     <select class="widefat" id="<?php echo esc_attr($widget->get_field_id('and_or')) ?>" name="<?php echo esc_attr($widget->get_field_name('and_or')) ?>">
         <?php foreach ($sett as $k => $val) : ?>
-            <option <?php if ($instance['and_or'] == $k) echo 'selected="selected"'; ?> value="<?php echo esc_html($k) ?>" class="level-0"><?php echo esc_html($val) ?></option>
+            <option <?php if ($and_or_saved == $k) echo 'selected="selected"'; ?> value="<?php echo esc_html($k) ?>" class="level-0"><?php echo esc_html($val) ?></option>
         <?php endforeach; ?>
     </select>
-
+    <i><?php esc_html_e('OR: a post matches if it has at least one of the checked checkboxes. Sliders, drop-downs and text fields always narrow the result.', 'meta-data-filter') ?></i>
 </p>
 
 <p>
@@ -246,7 +252,8 @@ $settings = self::get_settings();
     <ul id="meta_data_filter_tax_ul_<?php echo esc_attr($unique_id) ?>" class="meta_data_filter_tax_ul">
         <?php
         //sort them as were saved
-        $taxonomies_sorted = (array) $instance['taxonomies'];
+        //nothing saved yet is an empty string, (array) of it would add a checkbox with the key 0
+        $taxonomies_sorted = is_array($instance['taxonomies']) ? $instance['taxonomies'] : array();
         foreach ($taxonomies as $tax) {
             $taxonomies_sorted[$tax->name] = $tax->label;
         }
@@ -339,7 +346,7 @@ $settings = self::get_settings();
 ?>
 </p>
 
-<p style="display: none;">
+<p>
     <label for="<?php echo esc_attr($widget->get_field_id('taxonomies_options_behaviour')); ?>"><?php esc_html_e('AND/OR behaviour for taxonomies', 'meta-data-filter') ?>:</label>
     <?php
     $sett = array(
@@ -347,11 +354,20 @@ $settings = self::get_settings();
         'OR' => esc_html__('OR', 'meta-data-filter')
     );
     ?>
-    <select class="widefat" id="<?php echo esc_attr($widget->get_field_id('taxonomies_options_behaviour')) ?>" name="<?php echo esc_attr($widget->get_field_name('taxonomies_options_behaviour') )?>">
+    <?php
+    //older versions saved OR without applying it, such a widget works as AND until OR is saved again
+    $tax_behaviour = MetaDataFilterCore::get_widget_tax_bool($instance);
+    $tax_behaviour_legacy_or = ($tax_behaviour === 'AND' AND isset($instance['taxonomies_options_behaviour']) AND MetaDataFilterCore::normalize_meta_data_filter_bool($instance['taxonomies_options_behaviour']) === 'OR');
+    ?>
+    <select class="widefat" id="<?php echo esc_attr($widget->get_field_id('taxonomies_options_behaviour')) ?>" name="<?php echo esc_attr($widget->get_field_name('taxonomies_options_behaviour')) ?>">
         <?php foreach ($sett as $k => $val) : ?>
-            <option <?php if ($instance['taxonomies_options_behaviour'] == $k) echo 'selected="selected"'; ?> value="<?php echo esc_html($k) ?>" class="level-0"><?php echo esc_html($val) ?></option>
+            <option <?php if ($tax_behaviour == $k) echo 'selected="selected"'; ?> value="<?php echo esc_attr($k) ?>" class="level-0"><?php echo esc_html($val) ?></option>
         <?php endforeach; ?>
     </select>
+    <i><?php esc_html_e('Joins the selected terms of different taxonomies. Terms of one taxonomy always match any of them. Hidden and excluded products are never shown.', 'meta-data-filter') ?></i>
+    <?php if ($tax_behaviour_legacy_or): ?>
+        <br /><i><?php esc_html_e('OR was saved by an older version which did not apply it, so this widget works as AND. Select OR and save to switch.', 'meta-data-filter') ?></i>
+    <?php endif; ?>
 </p>
 
 

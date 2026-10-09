@@ -1,3 +1,4 @@
+<?php if (!defined('ABSPATH')) die('No direct access allowed'); ?>
 <?php
 //Customized for MDTF by realmag777
 
@@ -70,6 +71,7 @@ if (!class_exists('MDTF_Pagination')) {
             }
             $prevlink = ($this->type === 'posts') ? esc_url(get_pagenum_link($page - 1)) : get_comments_pagenum_link($page - 1);
             $nextlink = ($this->type === 'posts') ? esc_url(get_pagenum_link($page + 1)) : get_comments_pagenum_link($page + 1);
+            $output = '';
             if (isset($before)) {
                 $output = stripslashes($before);
             }
@@ -149,6 +151,8 @@ if (!class_exists('MDTF_Pagination')) {
             if (!isset($options['empty'])) {
                 $options['empty'] = 0;
             }
+            //keys missing in old/default settings: same output as before, without undefined variable warnings
+            $options = array_merge(array('title' => '', 'previouspage' => '', 'nextpage' => '', 'before' => '', 'after' => '', 'range' => 0, 'anchor' => 0, 'gap' => 0), $options);
             //***
             if (empty($options)) {
                 $options = array(
@@ -216,17 +220,17 @@ if (!class_exists('MDTF_Pagination')) {
                     <table class="form-table">
                         <tr valign="top">
                             <th scope="row"><?php esc_html_e('Pagination Label:', 'meta-data-filter'); ?></th>
-                            <td><input name="title" type="text" id="title" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['title'])))); ?>"/>
+                            <td><input name="title" type="text" id="title" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['title'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))); ?>"/>
                                 <span class="description"><?php esc_html_e('The text/HTML to display before the list of pages.', 'meta-data-filter'); ?></span></td>
                         </tr>
                         <tr valign="top">
                             <th scope="row"><?php esc_html_e('Previous Page:', 'meta-data-filter'); ?></th>
-                            <td><input name="previouspage" type="text" id="previouspage" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['previouspage'])))); ?>"/>
+                            <td><input name="previouspage" type="text" id="previouspage" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['previouspage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))); ?>"/>
                                 <span class="description"><?php esc_html_e('The text/HTML to display for the previous page link.', 'meta-data-filter'); ?></span></td>
                         </tr>
                         <tr valign="top">
                             <th scope="row"><?php esc_html_e('Next Page:', 'meta-data-filter'); ?></th>
-                            <td><input name="nextpage" type="text" id="nextpage" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['nextpage'])))); ?>"/>
+                            <td><input name="nextpage" type="text" id="nextpage" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['nextpage'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))); ?>"/>
                                 <span class="description"><?php esc_html_e('The text/HTML to display for the next page link.', 'meta-data-filter'); ?></span></td>
                         </tr>
                     </table>
@@ -235,12 +239,12 @@ if (!class_exists('MDTF_Pagination')) {
                     <table class="form-table">
                         <tr valign="top">
                             <th scope="row"><?php esc_html_e('Before Markup:', 'meta-data-filter'); ?></th>
-                            <td><input name="before" type="text" id="before" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['before'])))); ?>"/>
+                            <td><input name="before" type="text" id="before" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['before'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))); ?>"/>
                                 <span class="description"><?php esc_html_e('The HTML markup to display before the pagination code.', 'meta-data-filter'); ?></span></td>
                         </tr>
                         <tr valign="top">
                             <th scope="row"><?php esc_html_e('After Markup:', 'meta-data-filter'); ?></th>
-                            <td><input name="after" type="text" id="after" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['after'])))); ?>"/>
+                            <td><input name="after" type="text" id="after" size="40" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($this->options['after'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))); ?>"/>
                                 <span class="description"><?php esc_html_e('The HTML markup to display after the pagination code.', 'meta-data-filter'); ?></span></td>
                         </tr>
                         <tr valign="top">

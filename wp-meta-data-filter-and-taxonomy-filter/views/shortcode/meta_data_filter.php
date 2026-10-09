@@ -23,7 +23,7 @@ if (!isset($_REQUEST['meta_data_filter_works']) AND $wp_query->is_main_query()) 
 			}
 			//+++
 			list($meta_query_array, $filter_post_blocks_data, $widget_options) = MetaDataFilterHtml::get_meta_query_array($page_meta_data_filter);
-			$meta_data_filter_bool = isset($_GET['meta_data_filter_bool']) ? MetaDataFilterCore::escape($_GET['meta_data_filter_bool']) : 'AND';
+			$meta_data_filter_bool = MetaDataFilterCore::get_meta_data_filter_bool($widget_options);
 		}
 	} else {
 		return;
@@ -33,10 +33,9 @@ if (!isset($_REQUEST['meta_data_filter_works']) AND $wp_query->is_main_query()) 
 	//Taxonomies in process ...
 
 	$tax_query_array = MetaDataFilterHtml::get_tax_query_array($taxonomies);
-	$mdf_tax_bool = 'AND';
-	if (!empty($tax_query_array)) {
-		$mdf_tax_bool = isset($_GET['mdf_tax_bool']) ? MetaDataFilterCore::escape($_GET['mdf_tax_bool']) : 'AND';
-	}
+	//AND/OR between taxonomies travels inside page_mdf like the meta one
+	$mdf_tax_bool = MetaDataFilterCore::get_mdf_tax_bool($widget_options);
+	$mdf_visitor_tax = $tax_query_array;
 	//*** additional taxonomies for Pre-sale question:
 	//I have woocommerce with brands plugin installed, each brand page shows the products of this brand,
 	//can this plugin filter those products based on category?
@@ -47,12 +46,10 @@ if (!isset($_REQUEST['meta_data_filter_works']) AND $wp_query->is_main_query()) 
 	$tax_query_array = apply_filters('mdf_filter_taxonomies', $tax_query_array); //for 3 part scripts
 	$tax_query_array = apply_filters('mdf_filter_taxonomies2', $tax_query_array); //for 3 part scripts
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//service conditions are always required, whatever AND/OR is selected for the visitor conditions
+	$mdf_service_meta = array();
 	if (isset($_REQUEST['mdf_cat']) AND $_REQUEST['mdf_cat'] > 0) {
 		$tmp_add = true;
-
-		if (empty($meta_query_array)) {
-			$tmp_add = true;
-		}
 
 		if ($widget_options['hide_meta_filter_values']) {
 			$tmp_add = false;
@@ -60,17 +57,13 @@ if (!isset($_REQUEST['meta_data_filter_works']) AND $wp_query->is_main_query()) 
 
 		if ($tmp_add) {
 			if ((int) $_REQUEST['mdf_cat'] !== 0) {//fix for searching by title by shortcode 28-01-2015
-				$meta_query_array[] = array(
+				$mdf_service_meta[] = array(
 					'key' => "meta_data_filter_cat",
 					'value' => (int) $_REQUEST['mdf_cat'],
 					'compare' => '='
 				);
 			}
 		}
-	}
-
-	if (!empty($meta_query_array)) {
-		$meta_query_array = array_merge(array('relation' => $meta_data_filter_bool), $meta_query_array);
 	}
 
 	//for WOOCOMMERCE hidden products ***
@@ -84,16 +77,11 @@ if (!isset($_REQUEST['meta_data_filter_works']) AND $wp_query->is_main_query()) 
 				'operator' => 'NOT IN',
 			);
 		} elseif (version_compare(WOOCOMMERCE_VERSION, '3.0', '<')) {
-			$buffer = array(
+			$mdf_service_meta[] = array(
 				'key' => '_visibility',
 				'value' => array('catalog', 'visible'),
 				'compare' => 'IN'
 			);
-			if (empty($meta_query_array)) {
-				$meta_query_array = array_merge(array('relation' => $meta_data_filter_bool), $buffer);
-			} else {
-				$meta_query_array[] = $buffer;
-			}
 		}
 
 
@@ -105,22 +93,25 @@ if (!isset($_REQUEST['meta_data_filter_works']) AND $wp_query->is_main_query()) 
 				'value' => array('instock'),
 				'compare' => 'IN'
 			);
-			$meta_query_array[] = $buffer;
+			$mdf_service_meta[] = $buffer;
 		}
 		//***
 	}
 	//+++
 	//Trick - how to hide post from search
-	$meta_query_array[] = array(
+	$mdf_service_meta[] = array(
 		'key' => 'mdf_hide_post',
 		'value' => 'out',
 		'compare' => 'NOT EXISTS'
 	);
+	//OR joins only checkboxes of the visitor, the rest is required
+	list($mdf_or_meta, $mdf_required_meta) = MetaDataFilterHtml::split_meta_query_array($meta_query_array, $filter_post_blocks_data, $meta_data_filter_bool);
+	$meta_query_array = MetaDataFilterCore::wrap_meta_query($mdf_or_meta, $meta_data_filter_bool, array_merge($mdf_required_meta, $mdf_service_meta));
 	//***
 
-	if (!empty($tax_query_array)) {
-		$tax_query_array = array_merge(array('relation' => $mdf_tax_bool), $tax_query_array);
-	}
+	//visitor taxonomies are joined by AND/OR, product_visibility and additional taxonomies are always required
+	list($mdf_visitor_tax, $mdf_required_tax) = MetaDataFilterCore::split_tax_query_array($tax_query_array, $mdf_visitor_tax);
+	$tax_query_array = MetaDataFilterCore::wrap_tax_query($mdf_visitor_tax, $mdf_tax_bool, $mdf_required_tax);
 	//***
 
 	$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
@@ -216,7 +207,7 @@ if (!isset($_REQUEST['meta_data_filter_works']) AND $wp_query->is_main_query()) 
 	//***
 	if (!isset($_REQUEST['mdf_do_not_render_shortcode_tpl']) AND $output_tpl != 'self') {
 
-		$output_tpl = basename($output_tpl);
+		$output_tpl = MetaDataFilterCore::sanitize_template_path($output_tpl);
 		$tpl = explode('-', $output_tpl);
 		if (!isset($tpl[1])) {
 			$tpl[1] = '';

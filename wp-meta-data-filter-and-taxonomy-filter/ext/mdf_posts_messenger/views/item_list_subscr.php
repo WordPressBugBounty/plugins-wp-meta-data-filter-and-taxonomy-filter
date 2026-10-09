@@ -1,3 +1,4 @@
+<?php if (!defined('ABSPATH')) die('No direct access allowed'); ?>
 <li class="mdf_subscr_item mdf_subscr_item_<?php echo esc_attr($key) ?>">
     <?php
     

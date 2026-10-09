@@ -4,7 +4,7 @@
     <?php foreach ($data as $filter_post_id => $filter) : ?>        
         <li>
             <input type="hidden" name="html_items[<?php echo esc_attr($filter_post_id) ?>]" />
-            <h3 style="color: brown;"><?php esc_html_e($filter['post_title']) ?> (<?php esc_html_e('Hide', 'meta-data-filter') ?>:&nbsp;<input type="hidden" value="<?php echo (int) @$shortcode_options['filters'][$filter_post_id]['is_hidden']; ?>" name="shortcode_options[filters][<?php echo esc_attr($filter_post_id) ?>][is_hidden]" /> <input <?php checked((int) @$shortcode_options['filters'][$filter_post_id]['is_hidden'], 1); ?> class="mdf_hide_shortcode_html_block" type="checkbox" />)</h3>
+            <h3 class="mdtf-shortcode-section-title"><?php esc_html_e($filter['post_title']) ?> (<?php esc_html_e('Hide', 'meta-data-filter') ?>:&nbsp;<input type="hidden" value="<?php echo (int) @$shortcode_options['filters'][$filter_post_id]['is_hidden']; ?>" name="shortcode_options[filters][<?php echo esc_attr($filter_post_id) ?>][is_hidden]" /> <input <?php checked((int) @$shortcode_options['filters'][$filter_post_id]['is_hidden'], 1); ?> class="mdf_hide_shortcode_html_block" type="checkbox" />)</h3>
             <?php if (isset($filter['html_items']) AND!empty($filter['html_items']) AND is_array($filter['html_items'])): ?>
                 <ul class="options_meta_box_html_items" <?php if (@$shortcode_options['filters'][$filter_post_id]['is_hidden']): ?>style="display: none;"<?php endif; ?>>
                     <?php foreach ($filter['html_items'] as $html_item_key => $html_item) : ?>

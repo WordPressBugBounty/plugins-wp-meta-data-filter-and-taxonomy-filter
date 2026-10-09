@@ -168,6 +168,7 @@ jQuery('#mdf_stat_connection').on('click', function () {
         mdf_stat_user: jQuery("input[name='meta_data_filter_settings[server_options][host_user]']").val(),
         mdf_stat_name: jQuery("input[name='meta_data_filter_settings[server_options][host_db_name]']").val(),
         mdf_stat_pswd: jQuery("input[name='meta_data_filter_settings[server_options][host_pass]']").val(),
+        nonce: jQuery('#mdtf_ajax_nonce').val()
 
     };
     jQuery.post(ajaxurl, data, function (content) {

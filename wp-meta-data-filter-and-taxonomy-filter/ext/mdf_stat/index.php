@@ -126,6 +126,11 @@ final class MDF_SEARCH_STAT {
 
     //ajax
     public function mdf_stat_check_connection() {
+        //settings page only: opens a connection to the host given in the request
+        if (!current_user_can('manage_options')) {
+            die('0');
+        }
+        check_ajax_referer('mdtf_ajax_nonce', 'nonce');
         $pdo_options = array();
         $pdo_options['host'] = sanitize_text_field($_REQUEST['mdf_stat_host']);
         $pdo_options['host_db_name'] = sanitize_text_field($_REQUEST['mdf_stat_name']);
@@ -1006,6 +1011,10 @@ final class MDF_SEARCH_STAT {
     }
 
     public static function ajax_draw_tax_and_meta_var() {
+        //statistics settings are for admins only
+        if (!current_user_can('manage_options')) {
+            die('0');
+        }
         if (isset($_POST['mdf_stat_post_type'])) {
             $post_type = MetaDataFilter::escape($_POST['mdf_stat_post_type']);
 
@@ -1182,7 +1191,7 @@ final class MDF_SEARCH_STAT {
     public function render_taxonomy_query($tax_query, $post_type) {
         $parsed_tax = array();
 
-        foreach ($tax_query as $tax_item) {
+        foreach (MetaDataFilterCore::flatten_tax_query($tax_query) as $tax_item) {
             if (isset($tax_item['taxonomy']) AND in_array($tax_item['taxonomy'], $this->items_for_stat[$post_type]['tax'])) {
 
                 if (is_array($tax_item['terms'])) {

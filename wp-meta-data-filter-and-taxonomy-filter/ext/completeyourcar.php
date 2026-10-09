@@ -71,8 +71,7 @@ class MDTF_COMPLETE_CAR extends MetaDataFilterCore {
 	}
     public static function results_tax_string() {
         if (self::is_page_mdf_data() AND isset($_REQUEST['meta_data_filter_args']) AND isset($_REQUEST['meta_data_filter_args']['tax_query'])) {
-            $taxes = self::sanitize_array_r($_REQUEST['meta_data_filter_args']['tax_query']);
-            unset($taxes['relation']);
+            $taxes = MetaDataFilterCore::flatten_tax_query(self::sanitize_array_r($_REQUEST['meta_data_filter_args']['tax_query']));
 
             if (!empty($taxes)) {
                 $tmp = array();

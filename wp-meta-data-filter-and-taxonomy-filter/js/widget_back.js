@@ -91,7 +91,9 @@ jQuery(function () {
                             mdf_popup_terms_section_toggles = 0;
                             mdf_popup_terms_tax_title = '',
                                     mdf_popup_checkbox_max_height = 0;
-                            wpWidgets.save(widget, 0, 1, 0);
+                            if (typeof wpWidgets !== 'undefined') {
+                                wpWidgets.save(widget, 0, 1, 0);
+                            }
                         },
                         close: true
                     },
@@ -183,14 +185,18 @@ jQuery(function () {
     })(jQuery);
 
     jQuery('body').on('change', 'select[id*="meta_data_filter_slug"], select[id*="meta_data_filter_cat"]', function () {
+	//only selects of MDTF widget forms (the post meta box has a select with the same id)
+	if (!jQuery(this).closest('div.widget, .wp-block-legacy-widget, .customize-control-widget_form').length) {
+	    return;
+	}
+	//classic widgets screen: save, the saved widget comes back with the form of the new slug/category
 	var is_blocks = jQuery('.wp-block-widget-area');
-	if(is_blocks.length == 0) {
+	if(is_blocks.length == 0 && typeof wpWidgets !== 'undefined') {
 	    var widget = jQuery(this).closest('div.widget');
 	    wpWidgets.save(widget, 0, 1, 0);
-	} else {
-	    
-	    jQuery('.edit-widgets-header__actions .components-button.is-primary').trigger('click');
-	    alert(mdtf_lang.update_widget);
+	} else if (jQuery(this).closest('.wp-block-legacy-widget').length) {
+	    //block widgets editor: nothing is saved here (the user saves with Update), only the form is redrawn
+	    mdf_redraw_legacy_widget_form(this);
 	}
 
     });
@@ -216,6 +222,33 @@ jQuery(function () {
     });
 
 });
+
+//The Legacy Widget block keeps the form it was rendered with and only encodes the changed data into its instance.
+//Get the form of the changed data from the same REST endpoint the block uses (nothing is saved) and put it in place,
+//then let the block encode the new form, so its instance and the form stay the same.
+function mdf_redraw_legacy_widget_form(field) {
+    var form = jQuery(field).closest('form');
+    var content = form.children('.widget-content');
+    var id_base = form.children('input.id_base').val();
+    var number = parseInt(form.children('input.widget_number').val(), 10);
+    if (!content.length || !id_base || !number || typeof wp === 'undefined' || !wp.apiFetch) {
+        return;
+    }
+    wp.apiFetch({
+        path: '/wp/v2/widget-types/' + encodeURIComponent(id_base) + '/encode',
+        method: 'POST',
+        data: {instance: {}, number: number, form_data: form.serialize()}
+    }).then(function (response) {
+        if (!response || typeof response.form !== 'string' || !response.form.length) {
+            return;
+        }
+        content.html(response.form);
+        jQuery(document).trigger('widget-added', [form.closest('.widget')]);
+        form.trigger('change');
+    }).catch(function () {
+        //the block shows its own notice on REST errors, the form stays as it is
+    });
+}
 
 function mdf_add_filter_item_to_widget(unique_id, field_name, select_cat_id) {
     var data = {

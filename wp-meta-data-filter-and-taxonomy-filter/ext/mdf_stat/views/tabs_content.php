@@ -164,12 +164,12 @@ if (!defined('ABSPATH'))
             ?>
             <td>
                 <input type="text" class="regular-text" value="<?php echo esc_attr($user_max_requests) ?>" name="meta_data_filter_settings[user_max_requests]">
-                <p class="description"><?php esc_html_e("How many search requests will be catched and written down into the statistical mySQL table per 1 unique user before cron will assemble the data ", 'meta-data-filter') ?></p>
+                <p class="description"><?php esc_html_e("How many search requests will be caught and written down into the statistical mySQL table per 1 unique user before cron will assemble the data ", 'meta-data-filter') ?></p>
             </td>
         </tr>
         <!--+++++++++++++-->
         <tr valign="top" class="mdf_stat_option">
-            <th scope="row"><label><?php esc_html_e("Max deep of the search request", 'meta-data-filter') ?></label></th>
+            <th scope="row"><label><?php esc_html_e("Max depth of the search request", 'meta-data-filter') ?></label></th>
             <?php
             if (!isset($data['request_max_deep']) OR empty($data['request_max_deep'])) {
                 $data['request_max_deep'] = 5;

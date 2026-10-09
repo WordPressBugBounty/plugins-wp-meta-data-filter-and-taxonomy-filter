@@ -2,10 +2,10 @@
 Contributors: RealMag777
 Donate link: https://pluginus.net/affiliate/meta-data-taxonomies-filter
 Tags: filter,products filter,taxonomies filter,meta filter,woocommerce
-Requires at least: 4.1.0
-Tested up to: 7.0
+Requires at least: 5.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.9
+Stable tag: 1.4.0
 
 The main idea of the plugin – make your WordPress site content is filterable and searchable by meta fields and taxonomies on the same time.
 
@@ -176,6 +176,32 @@ R: You can report security bugs through the Patchstack Vulnerability Disclosure 
 
 
 == Changelog ==
+
+= 1.4.0 =
+
+* Fixed: 2 security issues, thanks to Ananda Dhakal, Peter Tang and Patchstack
+* Fixed: AND/OR behaviour for meta fields: OR now reaches every query of a search (results, item counters, ajax recount, ajax results redraw, pagination, sorting). The mode travels with the search data, so widgets, the [mdf_search_form] shortcode and the [mdf_search_button] popup work in OR mode.
+* Fixed: OR mode joins only checkboxes (and labels) of the visitor: sliders, drop-downs, text inputs, the filter category, WooCommerce stock/visibility and "mdf_hide_post" always stay required. Posts of another filter category, hidden posts and hidden/out-of-stock products can no longer leak into OR results.
+* Fixed: Item counters in OR mode show how many results there will be if the item is checked too.
+* Fixed: Widget option "show AND/OR filter" (BOTH): the visitor's choice now reaches the results and is kept after the search; saving such a widget no longer turns it into AND.
+* Fixed: AND/OR behaviour for taxonomies: the widget option "AND/OR behaviour for taxonomies" and the "mdf_tax_bool" hook of [mdf_search_form] now reach every query of a search, the same way as for meta fields. In OR mode a post matches if it has a selected term of at least one taxonomy; WooCommerce product visibility and additional taxonomies always stay required, so hidden products never show up.
+* Fixed: Taxonomy term counters on a search results page counted only the posts of one of the selected terms: the results page was taken for a taxonomy archive.
+* Fixed: Block widgets editor: changing the filter category or the post type of an MDTF widget no longer saves the widgets by itself and no longer shows an alert; the form is redrawn for the new post type and saved with "Update".
+* Fixed: [mdf_results_by_ajax shortcode="mdf_custom template=any/..."] showed no results since 2.3.9 when the template is in a sub folder; sub folders work again (paths outside mdf_templates are still refused). The same for "Results output template".
+* Fixed: A range select field without a step broke the search form and the widget on PHP 8 (fatal error); the step is 1 then.
+* Fixed: Reset button with "self" on a results page led to "http://self" on servers without SCRIPT_URI.
+* Fixed: Ajax recount widgets with "Results output page link" = self could redirect to "http://self".
+* Fixed: PHP 7.4: fatal error in [mdf_results_tax_navigation] / WooCommerce sort panel after an ajax search (loose comparison of array keys).
+* Fatal error with results templates copied into a theme by old versions (MetaDataFilterPage::draw_sort_by_filter()).
+* Fixed: JavaScript errors: on the login screen ("ajaxurl is not defined") and on post edit screens when the filter category is changed ("wpWidgets is not defined").
+* Fixed: PHP warnings and notices (PHP 7.4-8.5): pagination with default settings, settings page, results template variables, filter items saved by old versions, counters, early translation loading.
+* Fixed: Drop-down options added in the constructor were saved without a key: on the site they had no value, showed (0) and did not filter. Such options use their title as the key now (as the constructor and the post meta box always did), so the values already saved in posts work without saving anything again; new options are saved with the key.
+* Fixed: "Found" of a search form or a widget with the results on the same page showed the posts of one page, not all found posts.
+* Fixed: A widget inside a block (a Legacy Widget block in a Group) disappeared after the ajax recount; it is redrawn in place now.
+* Fixed: A second MDTF widget on a page showed the fields and the search of another widget (another post type or filter category); every widget shows only its own search now.
+* Fixed: PHP warnings when a new widget is added in the block widgets editor, and warnings / a fatal error of the search panel with incomplete search data.
+* Fixed: WooCommerce shop with an MDTF search: the ordering drop-down of WooCommerce (price, popularity, rating, latest) orders the results now; the MDTF sort panel keeps priority.
+* Fixed: Widget after the ajax recount: titles of empty sections are hidden the same way as on the page load (the slider header with "from - to" fields no longer appears; filter "mdf_hide_title_empty_section").
 
 = 1.3.9 =
 - 1 security issues are fixed, thanks to Ossacip Thanh and Patchstack

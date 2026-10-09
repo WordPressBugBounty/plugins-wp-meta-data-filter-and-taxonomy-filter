@@ -8,9 +8,12 @@ class MDTF_UTILITIES {
     }
 
     public function util_term_to_meta() {
+        if (!current_user_can('manage_options')) {
+            die('0');
+        }
         global $wpdb;
         $post_type = sanitize_text_field(esc_html($_REQUEST['post_type']));
-        $posts = $wpdb->get_results("SELECT ID from {$wpdb->posts} WHERE post_type='{$post_type}'");
+        $posts = $wpdb->get_results($wpdb->prepare("SELECT ID from {$wpdb->posts} WHERE post_type=%s", $post_type));
         //***
         if (!empty($posts)) {
             $meta_key = sanitize_text_field($_REQUEST['meta_key']);

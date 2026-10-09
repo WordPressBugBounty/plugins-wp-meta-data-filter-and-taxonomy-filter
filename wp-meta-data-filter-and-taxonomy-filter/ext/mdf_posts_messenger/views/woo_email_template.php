@@ -1,3 +1,4 @@
+<?php if (!defined('ABSPATH')) die('No direct access allowed'); ?>
 <?php
 $unsobscr_link = "";
 $link = explode("?", $subscr['link']);

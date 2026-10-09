@@ -32,7 +32,7 @@
                         <td>
                             <div class="mdf_input_container mdtf-p0">
                                 <label>
-                                    <?php esc_html_e($item['name']); ?>:&nbsp;<?php echo MetaDataFilter::get_field($key, $post_id, $is_reflected) ?><?php if (!empty($item['description'])): ?>;
+                                    <?php esc_html_e($item['name']); ?>:&nbsp;<?php echo esc_html(MetaDataFilter::get_field($key, $post_id, $is_reflected)) ?><?php if (!empty($item['description'])): ?>;
                                         <span class="mdf_tooltip" title="<?php echo str_replace('"', "'", esc_html__($item['description'])); ?>">
                                             <img alt="help" src="<?php echo esc_url_raw($icon) ?>">
                                         </span>

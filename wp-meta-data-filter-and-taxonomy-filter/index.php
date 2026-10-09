@@ -2,18 +2,19 @@
 /*
   Plugin Name: MDTF - Meta Data & Taxonomies Filter
   Plugin URI: https://wp-filter.com/
-  Description: Powerful and Flexible Filter Tools. Let your clients find all things they are want with the ease on your site.
-  Requires at least: WP 4.1.0
-  Tested up to: WP 7.0
+  Description: Powerful and Flexible Filter Tools. Let your clients find all things they want with ease on your site.
+  Requires at least: 5.0
+  Tested up to: 7.1
+  Requires PHP: 7.4
   Author: realmag777
   Author URI: https://pluginus.net/
-  Version: 1.3.9
-  Tags: ajax filter, custom fields filter, ecommerce filter, filter, filter for posts, posts filter, wordpress filter, jigoshop filter, taxonomies filter, meta filter, products filter, search, woocommerce, taxonomies filter widget, woocommerce filter  Text Domain: meta-data-filter
+  Version: 1.4.0
+  Tags: ajax filter, custom fields filter, ecommerce filter, filter, filter for posts, posts filter, wordpress filter, jigoshop filter, taxonomies filter, meta filter, products filter, search, woocommerce, taxonomies filter widget, woocommerce filter
   Text Domain: meta-data-filter
   Domain Path: /languages
   Forum URI: https://pluginus.net/support/forum/mdtf-wordpress-meta-data-taxonomies-filter/
   WC requires at least: 3.6.0
-  WC tested up to: 10.8
+  WC tested up to: 11.2
  */
 
 
@@ -44,7 +45,7 @@ require plugin_dir_path(__FILE__) . 'ext/gmap.php';
 require plugin_dir_path(__FILE__) . 'ext/mdf_posts_messenger/mdf_posts_messenger.php';
 require plugin_dir_path(__FILE__) . 'ext/mdf_stat/index.php';
 
-//12-06-2026
+//09-10-2026
 class MetaDataFilter extends MetaDataFilterCore {
 
     const WIDGET_TAXONOMIES_ONLY = -1;
@@ -92,7 +93,7 @@ class MetaDataFilter extends MetaDataFilterCore {
             'supports' => array('title', 'excerpt', 'tags'),
             'rewrite' => array('slug' => self::$slug),
             'show_in_admin_bar' => false,
-            'menu_icon' => '',
+            'menu_icon' => 'dashicons-search',
             'taxonomies' => array(self::$slug_cat) // this is IMPORTANT
         );
 
@@ -125,7 +126,7 @@ class MetaDataFilter extends MetaDataFilterCore {
 //+++
         $settings = MetaDataFilterCore::get_settings();
         $stxt = " function mdf_js_after_ajax_done() {  "
-                . (isset($settings['js_after_ajax_done']) ? stripcslashes(html_entity_decode($settings['js_after_ajax_done'])) : '') .
+                . (isset($settings['js_after_ajax_done']) ? stripcslashes(html_entity_decode($settings['js_after_ajax_done'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)) : '') .
                 "}";
         wp_add_inline_script('jquery', $stxt, 'after');
         wp_enqueue_script('jquery');
@@ -135,7 +136,8 @@ class MetaDataFilter extends MetaDataFilterCore {
         add_action('admin_menu', array(__CLASS__, 'admin_menu'), 1);
         add_action('save_post', array(__CLASS__, 'save_post'), 1);
         add_action('edit_attachment', array(__CLASS__, 'save_post'), 1);
-        if (!is_admin()) {
+        //not on the login/registration screen: front.js needs the variables printed in wp_head (ajaxurl etc.)
+        if (!is_admin() AND !in_array((isset($GLOBALS['pagenow']) ? $GLOBALS['pagenow'] : ''), array('wp-login.php', 'wp-register.php'), true)) {
 //!!! important to call front.js here, another way slider js for shortcodes doesn work
             wp_enqueue_script('meta_data_filter_widget', self::get_application_uri() . 'js/front.js', array('jquery', 'jquery-ui-core'));
             $data_array = array(
@@ -146,6 +148,8 @@ class MetaDataFilter extends MetaDataFilterCore {
         add_action('wp_head', array(__CLASS__, 'wp_head'), 999);
         add_action('wp_footer', array(__CLASS__, 'wp_footer'), 9999);
         add_action('admin_head', array(__CLASS__, 'admin_head'), 1);
+        add_action('admin_enqueue_scripts', array(__CLASS__, 'admin_enqueue_styles'));
+        add_filter('admin_body_class', array(__CLASS__, 'admin_body_class'));
         if (is_admin() AND isset($_GET['page']) AND $_GET['page'] == 'mdf_settings') {
             //should be here to load loader first
             wp_enqueue_style('mdf_settings', self::get_application_uri() . 'css/mdf_settings.css');
@@ -368,10 +372,13 @@ class MetaDataFilter extends MetaDataFilterCore {
     public static function wp_head() {
         wp_enqueue_script('jquery');
         try {
-            if (is_product_taxonomy()) {
+            //the archive of the request itself: on a results page $wp_query is the search query of MDTF, its tax_query made
+            //the page look like a taxonomy archive and the selected term became a required condition of every counter
+            global $wp_the_query, $wp_query;
+            $mdf_main_query = ($wp_the_query instanceof WP_Query) ? $wp_the_query : $wp_query;
+            if ($mdf_main_query instanceof WP_Query AND $mdf_main_query->is_tax(get_object_taxonomies('product'))) {
                 $_REQUEST['MDF_IS_WOO_CAT'] = TRUE;
-                global $wp_query;
-                $cat = $wp_query->get_queried_object();
+                $cat = $mdf_main_query->get_queried_object();
                 $additional_tax_query_array = array();
                 $additional_tax_query_array[] = array(
                     'taxonomy' => $cat->taxonomy,
@@ -426,8 +433,23 @@ class MetaDataFilter extends MetaDataFilterCore {
                     $_REQUEST['mdf_get_query_args_only'] = true;
                     do_shortcode('[meta_data_filter_results]');
                     $args = self::sanitize_array_r($_REQUEST['meta_data_filter_args']);
+                    //the ordering drop-down of WooCommerce orders the results when the sort panel of MDTF is not used (the panel has priority)
+                    $mdf_woo_ordering = (!isset($_REQUEST['order_by']) AND isset($_GET['orderby']) AND function_exists('WC') AND is_object(WC()->query));
+                    if ($mdf_woo_ordering) {
+                        $ordering = WC()->query->get_catalog_ordering_args();
+                        $args['orderby'] = $ordering['orderby'];
+                        $args['order'] = $ordering['order'];
+                        unset($args['meta_key']);
+                        if (!empty($ordering['meta_key'])) {
+                            $args['meta_key'] = $ordering['meta_key'];
+                        }
+                    }
                     global $wp_query;
                     $wp_query = new WP_Query($args);
+                    //price, popularity and rating are ordered by query clauses of WooCommerce: only for this query
+                    if ($mdf_woo_ordering) {
+                        WC()->query->remove_ordering_args();
+                    }
                     // woo3.3
                     if (version_compare(WOOCOMMERCE_VERSION, '3.3', '>=')) {
                         wc_set_loop_prop('is_paginated', true);
@@ -465,11 +487,17 @@ class MetaDataFilter extends MetaDataFilterCore {
                 var mdf_found_totally =<?php
             if (!isset($_REQUEST['meta_data_filter_found_posts'])) {
                 $a = self::sanitize_array_r($_REQUEST['meta_data_filter_args']);
+                //found is every post of the search, not the posts of one page: one ID is fetched, found_posts counts all of them
+                $a['fields'] = 'ids';
+                $a['posts_per_page'] = 1;
+                $a['paged'] = 1;
+                $a['no_found_rows'] = false;
+                unset($a['nopaging'], $a['offset']);
 //WPML compatibility
                 if (class_exists('SitePress')) {
                     $a['lang'] = ICL_LANGUAGE_CODE;
                 }
-                $query = new WP_QueryMDFCounter($a);
+                $query = new WP_Query($a);
                 echo (int) $query->found_posts;
             } else {
                 echo (int) $_REQUEST['meta_data_filter_found_posts'];
@@ -485,8 +513,50 @@ class MetaDataFilter extends MetaDataFilterCore {
         wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-ui-datepicker', array('jquery'));
         wp_enqueue_script('jquery-ui-sortable');
-        wp_enqueue_style('meta_data_filter_admin_total', self::get_application_uri() . 'css/admin_total.css');
         include MetaDataFilterCore::get_application_path() . 'js/js_vars.php';
+    }
+
+    //admin screens with MDTF interface: own post types, filter categories, settings, widgets, edit screens with the MDTF meta box
+    public static function is_mdtf_admin_screen() {
+        if (!function_exists('get_current_screen')) {
+            return false;
+        }
+        $screen = get_current_screen();
+        if (!$screen) {
+            return false;
+        }
+        $own_types = array(self::$slug, self::$slug_shortcodes, self::$slug_woo_sort, self::$slug_const_links, self::$slug_links);
+        if (in_array($screen->post_type, $own_types, true) OR $screen->taxonomy === self::$slug_cat) {
+            return true;
+        }
+        if (in_array($screen->base, array('widgets', 'customize'), true)) {
+            return true;
+        }
+        $post_types = self::get_setting('post_types');
+        return ($screen->base === 'post' AND is_array($post_types) AND in_array($screen->post_type, $post_types, true));
+    }
+
+    //styles only where MDTF is shown, not on the whole admin
+    public static function admin_enqueue_styles() {
+        if (!self::is_mdtf_admin_screen()) {
+            return;
+        }
+        wp_enqueue_style('meta_data_filter_admin_total', self::get_application_uri() . 'css/admin_total.css', array(), self::get_plugin_ver());
+        //the old sheets are also enqueued later by meta boxes and the settings page (same handles): load them here first so mdtf-admin.css comes after them
+        wp_enqueue_style('meta_data_filter_admin', self::get_application_uri() . 'css/admin.css');
+        $deps = array('meta_data_filter_admin_total', 'meta_data_filter_admin');
+        if (isset($_GET['page']) AND $_GET['page'] === 'mdf_settings') {
+            wp_enqueue_style('jquery-ui', self::get_application_uri() . 'css/jquery-ui.custom.css');
+            $deps[] = 'jquery-ui';
+        }
+        wp_enqueue_style('meta_data_filter_admin_ui', self::get_application_uri() . 'css/mdtf-admin.css', $deps, self::get_plugin_ver());
+    }
+
+    public static function admin_body_class($classes) {
+        if (self::is_mdtf_admin_screen()) {
+            $classes .= ' mdtf-admin';
+        }
+        return $classes;
     }
 
     public static function the_title($title) {
@@ -598,7 +668,7 @@ class MetaDataFilter extends MetaDataFilterCore {
 //watch for template file existing
         if (!file_exists(get_template_directory() . '/template-meta-data-filter.php')) {
             if (@!copy(self::get_application_path() . 'views/to_theme/template-meta-data-filter.php', get_template_directory() . '/template-meta-data-filter.php')) {
-                $notices .= '<div class="error fade"><p>' . esc_html__("Meta Data & Taxonomies Filter plugin can't copy the template file to your current theme from wp-content/plugins/meta-data-filter/views/to_theme/template-meta-data-filter.php. Please upload this file using ftp to your current theme folder from: plugins/meta-data-filter/veiws/to_theme.", 'meta-data-filter') . '</p></div>';
+                $notices .= '<div class="error fade"><p>' . esc_html__("Meta Data & Taxonomies Filter plugin can't copy the template file to your current theme from wp-content/plugins/meta-data-filter/views/to_theme/template-meta-data-filter.php. Please upload this file using ftp to your current theme folder from: plugins/meta-data-filter/views/to_theme.", 'meta-data-filter') . '</p></div>';
             }
         }
 
@@ -622,7 +692,7 @@ class MetaDataFilter extends MetaDataFilterCore {
     public static function data_meta_box_style() {
         global $post;
         ?>
-        <h4><?php esc_html_e("The section max-heigh", 'meta-data-filter') ?></h4>
+        <h4><?php esc_html_e("The section max-height", 'meta-data-filter') ?></h4>
         <i><?php esc_html_e("If you have a lot of elements in the filter section you can set max-height. Set 0 if you do not need it.", 'meta-data-filter') ?></i><br />
         <br />
         <h5 class="mdtf-m0"><?php esc_html_e("On front (widget)", 'meta-data-filter') ?>:</h5>
@@ -634,7 +704,7 @@ class MetaDataFilter extends MetaDataFilterCore {
         <h4><?php esc_html_e("The section toggle", 'meta-data-filter') ?>:</h4>
         <?php
         $toggles = array(
-            0 => esc_html__("No toogle", 'meta-data-filter'),
+            0 => esc_html__("No toggle", 'meta-data-filter'),
             1 => esc_html__("Opened", 'meta-data-filter'),
             2 => esc_html__("Closed", 'meta-data-filter')
         );
@@ -673,7 +743,8 @@ class MetaDataFilter extends MetaDataFilterCore {
                 if ($post->post_type == self::$slug) {
 //saving items of constructor
                     if (isset($_POST['html_item'])) {
-                        update_post_meta($post->ID, 'html_items', self::sanitize_array_r($_POST['html_item']));
+                        //options of drop-downs added in the constructor come without a key: their title becomes the key
+                        update_post_meta($post->ID, 'html_items', self::fill_select_keys(self::sanitize_array_r($_POST['html_item'])));
                     }
                     self::set_sequence($post->ID, self::escape($_POST['sequence']));
                     update_post_meta($post->ID, 'widget_section_max_height', self::escape($_POST['widget_section_max_height']));
@@ -692,11 +763,23 @@ class MetaDataFilter extends MetaDataFilterCore {
                             $wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key LIKE 'medafi_%' AND post_id=$post->ID");
                         }
 //***
-                        if (isset($_POST['page_meta_data_filter'])) {
+                        if (isset($_POST['page_meta_data_filter']) AND current_user_can('edit_post', $post->ID)) {
                             $page_meta_data_filter = self::sanitize_array_r($_POST['page_meta_data_filter']);
+                            //filter items always have medafi_ keys: other keys are stored neither in the array nor as post meta
+                            if (is_array($page_meta_data_filter)) {
+                                foreach (array_keys($page_meta_data_filter) as $key) {
+                                    if (strpos((string) $key, 'medafi_') !== 0) {
+                                        unset($page_meta_data_filter[$key]);
+                                    }
+                                }
+                            }
                             update_post_meta($post->ID, 'page_meta_data_filter', $page_meta_data_filter); //synhro saving
                             if (!empty($_POST['page_meta_data_filter']) AND is_array($page_meta_data_filter)) {
                                 foreach ($_POST['page_meta_data_filter'] as $key => $value) {
+                                    //filter items always have medafi_ keys: never let the form write any other (protected) meta key
+                                    if (strpos((string) $key, 'medafi_') !== 0) {
+                                        continue;
+                                    }
                                     update_post_meta($post->ID, $key, $value); //this is for better searching
                                 }
                             }
@@ -724,7 +807,7 @@ class MetaDataFilter extends MetaDataFilterCore {
                 wp_enqueue_style('meta_data_filter_admin', self::get_application_uri() . 'css/admin.css');
                 wp_enqueue_script('meta_data_filter_admin', self::get_application_uri() . 'js/admin.js', array('jquery'));
                 ?>
-                <input type="text" pattern="[0-9]*" name="xxx" placeholder="<?php esc_html_e("digits only", 'meta-data-filter') ?>" data-nonce="<?php echo wp_create_nonce('nonce_sequence_' . $post->ID); ?>" value="<?php echo get_post_meta($post->ID, 'sequence', true) ?>" data-post-id="<?php echo esc_attr($post->ID) ?>" class="meta_data_filter_sequence" />
+                <input type="text" pattern="[0-9]*" name="xxx" placeholder="<?php esc_html_e("digits only", 'meta-data-filter') ?>" data-nonce="<?php echo wp_create_nonce('nonce_sequence_' . $post->ID); ?>" value="<?php echo esc_attr(get_post_meta($post->ID, 'sequence', true)) ?>" data-post-id="<?php echo esc_attr($post->ID) ?>" class="meta_data_filter_sequence" />
                 <?php
                 break;
         }
@@ -853,7 +936,7 @@ class MetaDataFilter extends MetaDataFilterCore {
 
                     $prohibited_array = apply_filters('mdtf_prohibited_post_types', array('acf-post-type', 'acf-taxonomy', 'wpcf7_contact_form'), $query);
 
-                    if ($output_tpl == 'search' && !in_array($query->query['post_type'], $prohibited_array)) {
+                    if ($output_tpl == 'search' && !in_array((isset($query->query['post_type']) ? $query->query['post_type'] : ''), $prohibited_array)) {
                         $_REQUEST['mdf_do_not_render_shortcode_tpl'] = true;
                         do_shortcode('[meta_data_filter_results]');
                     }
@@ -914,7 +997,7 @@ class MetaDataFilter extends MetaDataFilterCore {
 
             global $wpdb;
             $mass_filter_slug = self::escape($_POST['mass_filter_slug']);
-            $posts = $wpdb->get_results("SELECT ID from {$wpdb->posts} WHERE post_type='{$mass_filter_slug}'");
+            $posts = $wpdb->get_results($wpdb->prepare("SELECT ID from {$wpdb->posts} WHERE post_type=%s", $mass_filter_slug));
             if (!empty($posts)) {
                 $meta_key = 'meta_data_filter_cat';
                 foreach ($posts as $post) {
@@ -955,6 +1038,10 @@ class MetaDataFilter extends MetaDataFilterCore {
 //for widget
 
     public static function add_filter_item_to_widget($val = '') {
+        //ajax call from the widgets screen
+        if (isset($_REQUEST['action']) AND $_REQUEST['action'] == 'mdf_add_filter_item_to_widget' AND !current_user_can('edit_theme_options')) {
+            wp_die('0');
+        }
         $res = MetaDataFilterPage::get_html_sliders_by_filter_cat((int) $_REQUEST['filter_cat']);
         ?>
         <?php if (!empty($res)): ?>
@@ -973,6 +1060,10 @@ class MetaDataFilter extends MetaDataFilterCore {
 
 //ajax - for option of any taxonomy in the widget
     public static function get_tax_options_in_widget() {
+        //widgets screen only
+        if (!current_user_can('edit_theme_options')) {
+            wp_die('0');
+        }
         $terms_list = self::get_terms(sanitize_text_field($_REQUEST['tax_name']));
         if (!empty($terms_list)) {
             $data = array();
@@ -988,7 +1079,7 @@ class MetaDataFilter extends MetaDataFilterCore {
 
             self::render_html_e(self::get_application_path() . 'views/widgets/search_form/popup_terms_list.php', $data);
         } else {
-            printf(esc_html__('No term are created for %s', 'meta-data-filter'), sanitize_text_field($_REQUEST['tax_name']));
+            printf(esc_html__('No terms are created for %s', 'meta-data-filter'), sanitize_text_field($_REQUEST['tax_name']));
         }
         exit;
     }
@@ -1678,6 +1769,10 @@ class MetaDataFilter extends MetaDataFilterCore {
             die('0');
         }
         $post_id = intval($_REQUEST['post_id']);
+        //the key is renamed in the meta of all posts, not only in this filter section
+        if (!current_user_can('edit_post', $post_id) OR !current_user_can('edit_others_posts')) {
+            die('0');
+        }
         $old_key = sanitize_key($_REQUEST['old_key']);
         $new_key = sanitize_key($_REQUEST['new_key']);
 
@@ -1686,19 +1781,19 @@ class MetaDataFilter extends MetaDataFilterCore {
 //+++
 //check for 'medafi_' prefix
         if ($new_key == 'medafi_') {
-            $request['notice'] = esc_html__('Attention! Meta key must be begin from medafi_ but can not such the name!!', 'meta-data-filter');
+            $request['notice'] = esc_html__('Attention! Meta key must begin with medafi_ but cannot be just medafi_!', 'meta-data-filter');
             wp_die(json_encode($request));
         }
 
         if (substr($new_key, 0, strlen('medafi_')) != 'medafi_') {
-            $request['notice'] = esc_html__('Attention! Meta key must be begin from medafi_!!', 'meta-data-filter');
+            $request['notice'] = esc_html__('Attention! Meta key must begin with medafi_!', 'meta-data-filter');
             wp_die(json_encode($request));
         }
 
 //firstly lets check for new key existing in current post of data constructor
         $items = array_keys(self::get_html_items($post_id));
         if (in_array($new_key, $items)) {
-            $request['notice'] = esc_html__('Such key already exists in current filter or its the same fileld. Try another key!', 'meta-data-filter');
+            $request['notice'] = esc_html__('Such key already exists in current filter or it is the same field. Try another key!', 'meta-data-filter');
             wp_die(json_encode($request));
         }
 //second check the new key in other filters

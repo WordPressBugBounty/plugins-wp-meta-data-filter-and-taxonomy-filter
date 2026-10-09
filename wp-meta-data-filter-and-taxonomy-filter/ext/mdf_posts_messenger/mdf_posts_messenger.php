@@ -28,7 +28,6 @@ class MDF_POSTS_MESSENGER {
 
     public function __construct() {
         $this->header_email = MetaDataFilterCore::get_setting('header_email_messenger');
-        $this->subscribe_lang = esc_html__('Subscription', 'meta-data-filter');
         $this->subject_email = MetaDataFilterCore::get_setting('subject_email_messenger');
         $this->text_email = MetaDataFilterCore::get_setting('text_email_messenger');
         $this->count_message = MetaDataFilterCore::get_setting('count_message');
@@ -211,6 +210,10 @@ class MDF_POSTS_MESSENGER {
             die('count is max'); // Check limit count on backend
         }
 
+        //translated here, not in the constructor: the class is created when the plugin file is loaded, before init
+        if ($this->subscribe_lang === '') {
+            $this->subscribe_lang = esc_html__('Subscription', 'meta-data-filter');
+        }
         $data['subscr_lang'] = apply_filters('mdf_subscribe_lang', $this->subscribe_lang); //Text of  the subscriptions
 
         $data['count'] = ((int) $this->count_message != -1) ? (int) $this->count_message : PHP_INT_MAX; // not limit* million times

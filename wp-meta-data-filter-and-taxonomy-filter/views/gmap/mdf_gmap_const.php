@@ -36,7 +36,7 @@ if (!empty($posts_ids)) {
 <script>
     //DYNAMIC SCRIPT DEPENDING OF OPTIONS
     jQuery(function () {
-        mdf_gmap_draw_<?php echo esc_attr($inique_id) ?>(<?php echo esc_attr($zoom) ?>, "<?php echo esc_attr(strtolower($maptype)) ?>");
+        mdf_gmap_draw_<?php echo esc_attr($inique_id) ?>(<?php echo (int) (isset($zoom) ? $zoom : 0) ?>, <?php echo wp_json_encode(strtolower((string) (isset($maptype) ? $maptype : ''))) ?>);
     });
 
     //GENERATED DYNAMIC FUNCTION
@@ -50,7 +50,8 @@ if (!empty($posts_ids)) {
             continue;
         }
         ?>
-                ['<?php echo get_the_title($value['post_id']) ?>', <?php echo $value['latitude'] ?>, <?php echo $value['longitude'] ?>],
+                <?php //values for JavaScript: the title as a JSON string, coordinates as numbers (post meta may hold anything) ?>
+                    [<?php echo wp_json_encode(get_the_title($value['post_id'])) ?>, <?php echo (float) $value['latitude'] ?>, <?php echo (float) $value['longitude'] ?>],
     <?php endforeach; ?>
 <?php endif; ?>
         ];
@@ -81,7 +82,7 @@ if (!empty($posts_ids)) {
             continue;
         }
         ?>
-                ['<div class="info_content"><?php echo wp_kses_post(wp_unslash(htmlspecialchars($value['desc'], ENT_QUOTES))) ?></div>'],
+                [<?php echo wp_json_encode('<div class="info_content">' . htmlspecialchars(wp_unslash((string) $value['desc']), ENT_QUOTES) . '</div>') ?>],
     <?php endforeach; ?>
 <?php endif; ?>
         ];
@@ -112,7 +113,8 @@ if (!empty($posts_ids)) {
 
         // Override our map zoom level once our fitBounds function runs (Make sure it only runs once)
         var boundsListener = google.maps.event.addListener((map), 'bounds_changed', function (event) {
-            this.setZoom(zoom);
+            //no zoom attribute (0): keep the zoom of fitBounds
+            if (zoom > 0) { this.setZoom(zoom); }
             google.maps.event.removeListener(boundsListener);
         });
 

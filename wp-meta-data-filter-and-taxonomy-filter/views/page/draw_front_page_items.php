@@ -332,8 +332,9 @@ if (!empty($filter_block['items'])):
                             <?php
                             $min = $max = 0;
                             if (isset($page_meta_data_filter[$key])) {
-                                $min = empty($page_meta_data_filter[$key]['from']) ? 0 : $page_meta_data_filter[$key]['from'];
-                                $max = empty($page_meta_data_filter[$key]['to']) ? 100 : $page_meta_data_filter[$key]['to'];
+                                //"from"/"to" come from the visitor (search data): numbers only
+                                $min = empty($page_meta_data_filter[$key]['from']) ? 0 : floatval($page_meta_data_filter[$key]['from']);
+                                $max = empty($page_meta_data_filter[$key]['to']) ? 100 : floatval($page_meta_data_filter[$key]['to']);
                             }
 
                             if (isset($item['range_select']) AND!empty($item['range_select'])) {
@@ -402,7 +403,17 @@ if (!empty($filter_block['items'])):
                                     <?php endif; ?>
                                     </<?php echo esc_attr($mdtf_title_sections) ?>>
                                     <?php
-                                    echo do_shortcode("[mdf_range_select meta_key='" . $key . "'  min=" . $preset_min . "  max=" . $preset_max . " step=" . $range_select_step . " cur_max=" . $max . "  cur_min=" . $min . "  prefix='" . $range_select_prefix . "' postfix='" . $range_select_postfix . "'  ]");
+                                    //the values of the visitor never become shortcode text: the handler gets them as data
+                                    MetaDataFilterShortcodes::range_select(array(
+                                        'meta_key' => $key,
+                                        'min' => floatval($preset_min),
+                                        'max' => floatval($preset_max),
+                                        'step' => floatval($range_select_step),
+                                        'cur_max' => floatval($max),
+                                        'cur_min' => floatval($min),
+                                        'prefix' => $range_select_prefix,
+                                        'postfix' => $range_select_postfix,
+                                    ));
                                     ?></div>
                             </td>
                             <?php

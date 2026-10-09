@@ -16,6 +16,8 @@ class MetaDataFilterCore {
     public static $max_int = 2147483647;
     public static $session_id = 0;
     public static $default_order_by = 'date';
+    //true while a widget draws itself without the search of the page (the search belongs to another widget or form)
+    public static $ignore_page_mdf_data = false;
     //http://codex.wordpress.org/Class_Reference/WP_Query
     public static $allowed_order_by = array('ID', 'author', 'title', 'name', 'date', 'modified', 'rand', 'comment_count', 'menu_order');
     public static $default_order = 'DESC';
@@ -61,7 +63,71 @@ class MetaDataFilterCore {
     }
 
     public static function get_html_items($post_id) {
-        return get_post_meta($post_id, 'html_items', true);
+        return self::fill_select_keys(get_post_meta($post_id, 'html_items', true));
+    }
+
+    /**
+     * Options of a drop-down added in the constructor were saved with an empty key.
+     * Such an option uses its title as the key, the same way the constructor and the post meta box use it,
+     * so the values already saved in the posts match. Options with a key keep it, "0" too: the site always used
+     * it as it is, posts may keep "0" (import, code).
+     *
+     * @param mixed $html_items html_items of a filter section
+     * @return mixed the same data, empty keys of drop-down options filled
+     */
+    public static function fill_select_keys($html_items) {
+        if (!is_array($html_items)) {
+            return $html_items;
+        }
+        foreach ($html_items as $meta_key => $item) {
+            if (!is_array($item) OR !isset($item['select']) OR !is_array($item['select'])) {
+                continue;
+            }
+            if (!isset($item['select_key']) OR !is_array($item['select_key'])) {
+                $item['select_key'] = array();
+            }
+            foreach ($item['select'] as $k => $value) {
+                if (!isset($item['select_key'][$k]) OR (string) $item['select_key'][$k] === '') {
+                    $item['select_key'][$k] = trim($value);
+                }
+            }
+            $html_items[$meta_key] = $item;
+        }
+        return $html_items;
+    }
+
+    /**
+     * A widget drawn outside a sidebar (a Legacy Widget block inside another block, the_widget()) has no sidebar
+     * where the ajax recount could find it by its ID. Its form carries the widget class and options, signed by the site,
+     * to draw the same widget again. A widget in a sidebar gets nothing, it is found by its ID as before.
+     *
+     * @param WP_Widget $widget
+     * @param array $instance options of the widget
+     * @param array $args widget arguments
+     * @return array data and its signature, empty strings for a widget in a sidebar
+     */
+    public static function get_widget_redraw_data($widget, $instance, $args) {
+        if (!empty($args['id'])) {
+            return array('', '');
+        }
+        $data = base64_encode(wp_json_encode(array('class' => get_class($widget), 'instance' => $instance)));
+        return array($data, wp_hash($data));
+    }
+
+    /**
+     * @param mixed $data data of get_widget_redraw_data() sent back by the form
+     * @param mixed $hash its signature
+     * @return array|null class and options of the widget, null when the data is not signed by the site
+     */
+    public static function get_widget_from_redraw_data($data, $hash) {
+        if (!is_string($data) OR !is_string($hash) OR $data === '' OR !hash_equals(wp_hash($data), $hash)) {
+            return null;
+        }
+        $widget = json_decode(base64_decode($data), true);
+        if (!is_array($widget) OR !isset($widget['class'], $widget['instance']) OR !is_array($widget['instance']) OR !in_array($widget['class'], array('MetaDataFilter_Search', 'MetaDataFilter_TaxSearch'), true)) {
+            return null;
+        }
+        return $widget;
     }
 
     public static function get_settings() {
@@ -117,10 +183,12 @@ class MetaDataFilterCore {
         return $string;
     }
 
-    public static function set_page_mdf_session($string) {
+    public static function set_page_mdf_session($string, $key_string = '') {
 
 //$string is base64 encoded
-        $key_string = md5($string);
+        if (!is_string($key_string) OR !preg_match('/^[0-9a-f]{32}$/', $key_string)) {
+            $key_string = md5($string);
+        }
 
 //save long search data string to avoid it from browser link
         if (self::$where_keep_search_data == 'session') {
@@ -135,6 +203,31 @@ class MetaDataFilterCore {
 
 
         return $key_string;
+    }
+
+    /**
+     * Key of the stored search data (page_mdf): a hash of the normalized search, so the same search always gets
+     * the same key and one transient, whatever order its fields came in.
+     */
+    public static function get_search_data_key($data) {
+        return md5((string) wp_json_encode(self::normalize_search_data($data)));
+    }
+
+    //keys of associative arrays sorted, scalars as trimmed strings, lists keep their order
+    public static function normalize_search_data($data) {
+        if (!is_array($data)) {
+            return is_scalar($data) ? trim((string) $data) : '';
+        }
+        $is_list = (array_keys($data) === range(0, count($data) - 1));
+        $normalized = array();
+        foreach ($data as $key => $value) {
+            $normalized[(string) $key] = self::normalize_search_data($value);
+        }
+        if (!$is_list) {
+            ksort($normalized, SORT_STRING);
+        }
+
+        return $normalized;
     }
 
     public static function get_page_mdf_session($key_string) {
@@ -166,6 +259,9 @@ class MetaDataFilterCore {
 
     public static function get_page_mdf_data() {
         static $page_meta_data_filter;
+        if (self::$ignore_page_mdf_data) {
+            return array();
+        }
 //+++
         if (!empty($page_meta_data_filter)) {
             $_GLOBALS['MDF_META_DATA_FILTER'] = $page_meta_data_filter;
@@ -177,7 +273,26 @@ class MetaDataFilterCore {
 
 //is base64
         //create filter for posts messenger 
-        $page_meta_data_filter = apply_filters("mdf_filter_arg_page", json_decode(base64_decode($page_mdf_string), true));
+        //stored search data is an array, anything else (broken or foreign data) is no search
+        $page_meta_data_filter = json_decode(base64_decode((string) $page_mdf_string), true);
+        if (!is_array($page_meta_data_filter)) {
+            $page_meta_data_filter = array();
+        }
+        if (!empty($page_meta_data_filter)) {
+            $widget_options = (isset($page_meta_data_filter['mdf_widget_options']) AND is_array($page_meta_data_filter['mdf_widget_options'])) ? $page_meta_data_filter['mdf_widget_options'] : array();
+            $page_meta_data_filter['mdf_widget_options'] = array_merge(array('hide_meta_filter_values' => 0, 'meta_data_filter_cat' => 0, 'search_result_page' => ''), $widget_options);
+        }
+        //range values of filter items ("from"/"to", range select and calendar) are numbers, whatever the visitor sent
+        foreach ($page_meta_data_filter as $key => $value) {
+            if (strpos((string) $key, 'medafi_') === 0 AND is_array($value)) {
+                foreach (array('from', 'to') as $edge) {
+                    if (isset($value[$edge]) AND $value[$edge] !== '') {
+                        $page_meta_data_filter[$key][$edge] = is_numeric($value[$edge]) ? $value[$edge] + 0 : 0;
+                    }
+                }
+            }
+        }
+        $page_meta_data_filter = apply_filters("mdf_filter_arg_page", $page_meta_data_filter);
 
 //***
 
@@ -193,6 +308,187 @@ class MetaDataFilterCore {
         }
 
         return false;
+    }
+
+    /**
+     * AND/OR behaviour for meta fields of the current search.
+     * Takes it from the widget/shortcode options stored in page_mdf, then from the request, otherwise AND.
+     *
+     * @param array $widget_options mdf_widget_options of the current search
+     * @return string strictly 'OR' or 'AND'
+     */
+    public static function get_meta_data_filter_bool($widget_options = array()) {
+        $bool = '';
+        if (is_array($widget_options) AND isset($widget_options['meta_data_filter_bool'])) {
+            $bool = $widget_options['meta_data_filter_bool'];
+        }
+        if (($bool === '' OR $bool === null) AND isset($_REQUEST['meta_data_filter_bool'])) {
+            $bool = $_REQUEST['meta_data_filter_bool'];
+        }
+
+        return self::normalize_meta_data_filter_bool($bool);
+    }
+
+    //anything except OR (any case) is AND
+    public static function normalize_meta_data_filter_bool($bool) {
+        if (!is_string($bool)) {
+            return 'AND';
+        }
+
+        return (strtoupper(trim($bool)) === 'OR') ? 'OR' : 'AND';
+    }
+
+    /**
+     * Builds the final meta_query of a search.
+     * Visitor conditions which may be combined by OR (checkboxes, labels) are joined by $bool,
+     * everything else (sliders, drop-downs, text inputs, filter category, WooCommerce and mdf_hide_post conditions) is always required.
+     * A single OR-able condition is not wrapped into a group.
+     *
+     * @param array $or_conditions OR-able visitor conditions
+     * @param string $bool 'AND' or 'OR'
+     * @param array $required_conditions conditions which must always match
+     * @return array meta_query with relation AND on the top level
+     */
+    public static function wrap_meta_query($or_conditions, $bool = 'AND', $required_conditions = array()) {
+        $meta_query = array('relation' => 'AND');
+        $or_conditions = array_values((array) $or_conditions);
+        if (self::normalize_meta_data_filter_bool($bool) === 'OR' AND count($or_conditions) > 1) {
+            $meta_query[] = array_merge(array('relation' => 'OR'), $or_conditions);
+        } else {
+            foreach ($or_conditions as $condition) {
+                $meta_query[] = $condition;
+            }
+        }
+
+        foreach ((array) $required_conditions as $condition) {
+            $meta_query[] = $condition;
+        }
+
+        return $meta_query;
+    }
+
+    /**
+     * AND/OR between the taxonomies of the current search, same sources as get_meta_data_filter_bool():
+     * the widget/shortcode options stored in page_mdf, then the request, otherwise AND.
+     *
+     * @param array $widget_options mdf_widget_options of the current search
+     * @return string strictly 'OR' or 'AND'
+     */
+    public static function get_mdf_tax_bool($widget_options = array()) {
+        $bool = '';
+        if (is_array($widget_options) AND isset($widget_options['mdf_tax_bool'])) {
+            $bool = $widget_options['mdf_tax_bool'];
+        }
+        if (($bool === '' OR $bool === null) AND isset($_REQUEST['mdf_tax_bool'])) {
+            $bool = $_REQUEST['mdf_tax_bool'];
+        }
+
+        return self::normalize_meta_data_filter_bool($bool);
+    }
+
+    /**
+     * AND/OR between taxonomies saved in a widget. Before 2.4.0 this option never reached the search query,
+     * so OR counts only when the widget was saved by 2.4.0+ (flag taxonomies_options_behaviour_ver),
+     * older widgets keep working as AND, as they always did.
+     */
+    public static function get_widget_tax_bool($instance) {
+        if (is_array($instance) AND !empty($instance['taxonomies_options_behaviour_ver']) AND isset($instance['taxonomies_options_behaviour'])) {
+            return self::normalize_meta_data_filter_bool($instance['taxonomies_options_behaviour']);
+        }
+
+        return 'AND';
+    }
+
+    /**
+     * Visitor conditions of a tax_query are the ones built from the search form, everything a filter added
+     * (current product category page, additional taxonomies, third party code) is required.
+     *
+     * @param array $tax_query tax_query after the filters
+     * @param array $visitor_conditions conditions built from the search form
+     * @return array array($visitor_conditions, $required_conditions)
+     */
+    public static function split_tax_query_array($tax_query, $visitor_conditions) {
+        $visitor = array();
+        $required = array();
+        $left = array_values((array) $visitor_conditions);
+        foreach ((array) $tax_query as $key => $condition) {
+            if ($key === 'relation' OR !is_array($condition)) {
+                continue;
+            }
+            $pos = array_search($condition, $left, true);
+            if ($pos !== false) {
+                $visitor[] = $condition;
+                unset($left[$pos]);
+            } elseif (!in_array($condition, (array) $visitor_conditions, true)) {
+                $required[] = $condition;
+            }
+            //a repeated visitor condition (filter "mdf_filter_taxonomies" collects them per request) is dropped
+        }
+
+        return array($visitor, $required);
+    }
+
+    /**
+     * Builds the final tax_query of a search, like wrap_meta_query(): visitor taxonomies are joined by $bool,
+     * required conditions (product_visibility, additional taxonomies) stay on the top level with relation AND,
+     * so a condition added later on the top level is required too.
+     *
+     * @return array tax_query, empty array if there are no conditions
+     */
+    public static function wrap_tax_query($visitor_conditions, $bool = 'AND', $required_conditions = array()) {
+        $visitor_conditions = array_values((array) $visitor_conditions);
+        $required_conditions = array_values((array) $required_conditions);
+        if (empty($visitor_conditions) AND empty($required_conditions)) {
+            return array();
+        }
+
+        $tax_query = array('relation' => 'AND');
+        if (self::normalize_meta_data_filter_bool($bool) === 'OR' AND count($visitor_conditions) > 1) {
+            $tax_query[] = array_merge(array('relation' => 'OR'), $visitor_conditions);
+        } else {
+            foreach ($visitor_conditions as $condition) {
+                $tax_query[] = $condition;
+            }
+        }
+
+        foreach ($required_conditions as $condition) {
+            $tax_query[] = $condition;
+        }
+
+        return $tax_query;
+    }
+
+    //single taxonomy conditions of a tax_query, nested groups opened (for term lists, statistics)
+    public static function flatten_tax_query($tax_query) {
+        $conditions = array();
+        foreach ((array) $tax_query as $key => $condition) {
+            if ($key === 'relation' OR !is_array($condition)) {
+                continue;
+            }
+            if (isset($condition['taxonomy'])) {
+                $conditions[] = $condition;
+            } else {
+                $conditions = array_merge($conditions, self::flatten_tax_query($condition));
+            }
+        }
+
+        return $conditions;
+    }
+
+    /**
+     * Relative template path from shortcode/widget options, e.g. any/my_posts.
+     * Sub folders are allowed, anything that could leave the templates folder (.., \, dots, other chars) is dropped.
+     */
+    public static function sanitize_template_path($path) {
+        $parts = array();
+        foreach (explode('/', str_replace('\\', '/', (string) $path)) as $part) {
+            $part = preg_replace('/[^A-Za-z0-9_\-]/', '', $part);
+            if ($part !== '') {
+                $parts[] = $part;
+            }
+        }
+
+        return implode('/', $parts);
     }
 
     public static function get_html_items_by_cat($cat_id) {

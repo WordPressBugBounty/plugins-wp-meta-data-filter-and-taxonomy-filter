@@ -48,7 +48,7 @@
     <li>
         <?php
         $toggles = array(
-            0 => esc_html__("No toogle", 'meta-data-filter'),
+            0 => esc_html__("No toggle", 'meta-data-filter'),
             1 => esc_html__("Opened", 'meta-data-filter'),
             2 => esc_html__("Closed", 'meta-data-filter')
         );

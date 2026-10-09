@@ -26,7 +26,11 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 
 	//ajax - get new items by cat select
 	public static function get_data_group_topage_items() {
-		self::draw_back_page_items((int) $_REQUEST['cat_id']);
+		//post edit screen only
+		if (!current_user_can('edit_posts')) {
+			wp_die('0');
+		}
+		self::draw_back_page_items((int) self::request_value('cat_id'));
 		exit;
 	}
 
@@ -73,6 +77,12 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 	}
 
 	public static function draw_front_page_items($widget_options, $form_uniqid) {
+		//options a widget has not saved yet are empty, as reading the missing keys gave
+		foreach (array(self::$slug_cat, 'meta_data_filter_slug') as $key) {
+			if (!isset($widget_options[$key])) {
+				$widget_options[$key] = null;
+			}
+		}
 
 		if ($widget_options[MetaDataFilterCore::$slug_cat] == MetaDataFilter::WIDGET_TAXONOMIES_ONLY) {
 			$blocks = array(
@@ -123,6 +133,16 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 	}
 
 	public static function encode_search_get_params() {
+		//search data of a real form is a few KB; an oversized request is not stored (it would stay in wp_options for a day)
+		$max_length = (int) apply_filters('mdf_search_data_max_length', 65536);
+		if (!isset($_REQUEST['vars']) OR !is_string($_REQUEST['vars']) OR ($max_length > 0 AND strlen($_REQUEST['vars']) > $max_length)) {
+			header('Content-Type: text/plain');
+			if (isset($_REQUEST['no_wp_die'])) {
+				return 'mdf_cat=-1';
+			}
+			wp_die('mdf_cat=-1');
+		}
+
 		$data = array();
 		parse_str($_REQUEST['vars'], $data);
 
@@ -152,6 +172,21 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 		if (!isset($data['mdf'])) {
 			$data['mdf'] = array();
 		}
+		//AND/OR for meta fields travels inside page_mdf (mdf_widget_options) to every query of the search.
+		//The top level field is a fallback: visitor choice in BOTH mode, forms rendered before the update.
+		if (isset($data['mdf']['mdf_widget_options']) AND is_array($data['mdf']['mdf_widget_options'])) {
+			$mdf_bool = isset($data['mdf']['mdf_widget_options']['meta_data_filter_bool']) ? $data['mdf']['mdf_widget_options']['meta_data_filter_bool'] : '';
+			if (($mdf_bool === '' OR $mdf_bool === '~') AND isset($data['meta_data_filter_bool'])) {
+				$mdf_bool = $data['meta_data_filter_bool'];
+			}
+			$data['mdf']['mdf_widget_options']['meta_data_filter_bool'] = self::normalize_meta_data_filter_bool($mdf_bool);
+			//AND/OR between taxonomies, the same way
+			$mdf_tax_bool = isset($data['mdf']['mdf_widget_options']['mdf_tax_bool']) ? $data['mdf']['mdf_widget_options']['mdf_tax_bool'] : '';
+			if (($mdf_tax_bool === '' OR $mdf_tax_bool === '~') AND isset($data['mdf_tax_bool'])) {
+				$mdf_tax_bool = $data['mdf_tax_bool'];
+			}
+			$data['mdf']['mdf_widget_options']['mdf_tax_bool'] = self::normalize_meta_data_filter_bool($mdf_tax_bool);
+		}
 		//fixed 24-10-2014
 		//$responce = 'meta_data_filter_bool=' . $data['meta_data_filter_bool'] . '&mdf_tax_bool=' . $data['mdf_tax_bool'] . '&' . self::$slug_cat . '=' . $data[self::$slug_cat];
 		// gtranslate correct response content-type
@@ -164,11 +199,11 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 		}
 
 		//reset
-		if ($_REQUEST['mode'] == 'reset') {
+		if (self::request_value('mode') == 'reset') {
 			//shortcodes always reset by ajax
-			if ($_REQUEST['is_ajaxed_reset']) {
-				if ($_REQUEST['type'] == 'shortcode') {
-					$shortcode_id = sanitize_title($_REQUEST['shortcode_id']);
+			if (self::request_value('is_ajaxed_reset')) {
+				if (self::request_value('type') == 'shortcode') {
+					$shortcode_id = sanitize_title((string) self::request_value('shortcode_id'));
 					echo do_shortcode('[mdf_search_form id="' . esc_attr($shortcode_id) . '"]');
 					exit;
 				}
@@ -177,8 +212,8 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 			//***
 
 			$tmp = array();
-			$tmp['filter_post_blocks'] = $data['mdf']['filter_post_blocks'];
-			$tmp['mdf_widget_options'] = $data['mdf']['mdf_widget_options'];
+			$tmp['filter_post_blocks'] = isset($data['mdf']['filter_post_blocks']) ? $data['mdf']['filter_post_blocks'] : null;
+			$tmp['mdf_widget_options'] = isset($data['mdf']['mdf_widget_options']) ? $data['mdf']['mdf_widget_options'] : null;
 			if (isset($data['mdf']['taxonomy'])) {
 				$tmp['taxonomy'] = $data['mdf']['taxonomy'];
 			} else {
@@ -203,7 +238,8 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 
 
 		//base64_
-		$page_mdf = self::set_page_mdf_session(base64_encode(json_encode($data['mdf'])));
+		//the same search always gets the same page_mdf and one transient (links with older keys keep working while they live)
+		$page_mdf = self::set_page_mdf_session(base64_encode(json_encode($data['mdf'])), self::get_search_data_key($data['mdf']));
 		$responce .= '&page_mdf=' . $page_mdf;
 		if (isset($_REQUEST['no_wp_die'])) {
 			return $responce;
@@ -230,11 +266,11 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 		}
 		//+++
 		//when we do sort before searching
-		if ((int) $_REQUEST['mdf_is_search_going'] == 0 OR ( (int) $_REQUEST['mdf_is_search_going'] == 1 AND (!isset($_REQUEST['order_by']) OR $_REQUEST['order_by'] == null) )) {
-			if ($_REQUEST['mdf_tmp_order'] != '0' AND $_REQUEST['mdf_tmp_orderby'] != '0') {
-				$_REQUEST['order'] = self::$default_order = sanitize_text_field($_REQUEST['mdf_tmp_order']);
+		if ((int) self::request_value('mdf_is_search_going') == 0 OR ( (int) self::request_value('mdf_is_search_going') == 1 AND (!isset($_REQUEST['order_by']) OR $_REQUEST['order_by'] == null) )) {
+			if (self::request_value('mdf_tmp_order') != '0' AND self::request_value('mdf_tmp_orderby') != '0') {
+				$_REQUEST['order'] = self::$default_order = sanitize_text_field((string) self::request_value('mdf_tmp_order'));
 
-				$_REQUEST['order_by'] = self::$default_order_by = sanitize_text_field($_REQUEST['mdf_tmp_orderby']);
+				$_REQUEST['order_by'] = self::$default_order_by = sanitize_text_field((string) self::request_value('mdf_tmp_orderby'));
 			}
 		}
 
@@ -246,14 +282,14 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 		if (!empty($link_data)) {
 			foreach ($link_data as $pair) {
 				$tmp = explode('=', $pair);
-				$data[$tmp[0]] = $tmp[1];
+				$data[$tmp[0]] = isset($tmp[1]) ? $tmp[1] : '';
 			}
 		}
 
 		//+++
-		$_REQUEST['mdf_cat'] = $data['mdf_cat'];
-		$_REQUEST['page_mdf'] = $data['page_mdf'];
-		$slug = sanitize_text_field($_REQUEST['slug']);
+		$_REQUEST['mdf_cat'] = isset($data['mdf_cat']) ? $data['mdf_cat'] : null;
+		$_REQUEST['page_mdf'] = isset($data['page_mdf']) ? $data['page_mdf'] : null;
+		$slug = sanitize_text_field((string) self::request_value('slug'));
 		//print_r($_REQUEST);
 		$mdf_data = self::get_page_mdf_data();
 		//+++
@@ -263,25 +299,38 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 		//***
 		do_shortcode('[meta_data_filter_results]');
 		$result = array();
-		if ($_REQUEST['type'] == 'shortcode') {
-			$shortcode_id = sanitize_title($_REQUEST['shortcode_id']);
+		if (self::request_value('type') == 'shortcode') {
+			$shortcode_id = sanitize_title((string) self::request_value('shortcode_id'));
 
 			$result['form'] = do_shortcode('[mdf_search_form id="' . esc_attr($shortcode_id) . '"]');
 		} else {
 			ob_start();
+			$did_widget = false;
 			if (isset($_REQUEST['widget_id']) AND isset($_REQUEST['sidebar_id'])) {
-				self::dynamic_sidebar(sanitize_text_field($_REQUEST['widget_id']), sanitize_text_field($_REQUEST['sidebar_id']));
+				$did_widget = self::dynamic_sidebar(sanitize_text_field($_REQUEST['widget_id']), sanitize_text_field($_REQUEST['sidebar_id']));
+			}
+			//a widget outside a sidebar (a Legacy Widget block inside another block) is drawn again from its options signed by the site
+			if (!$did_widget) {
+				$redraw = self::get_widget_from_redraw_data(self::request_value('widget_redraw'), self::request_value('widget_redraw_hash'));
+				if ($redraw) {
+					the_widget($redraw['class'], $redraw['instance'], array('widget_id' => sanitize_text_field((string) self::request_value('widget_id'))));
+				}
 			}
 			$result['form'] = ob_get_clean();
 		}
 
 		//return data if we use ajax content redrawing
-		if ($_REQUEST['mdf_ajax_content_redraw'] AND isset($_REQUEST['shortcode_txt'])) {
+		if (self::request_value('mdf_ajax_content_redraw') AND isset($_REQUEST['shortcode_txt'])) {
 			$shortcode_txt = self::check_shortcode('products', "[" . strip_shortcodes(sanitize_text_field($_REQUEST['shortcode_txt'])) . "]");
 			$result['content'] = do_shortcode($shortcode_txt);
 		}
 		echo json_encode($result);
 		exit;
+	}
+
+	//a field of the public ajax requests: null when the request has no such field (as reading the missing index gave)
+	private static function request_value($key) {
+		return isset($_REQUEST[$key]) ? $_REQUEST[$key] : null;
 	}
 
 	public static function check_shortcode($tag = "", $text = "") {
@@ -365,6 +414,11 @@ class MetaDataFilterPage extends MetaDataFilterCore {
 		}
 
 		return $did_one;
+	}
+
+	//for compatibility only: results templates copied into themes by old versions call it
+	public static function draw_sort_by_filter() {
+		return '';
 	}
 
 	public static function get_fiters_posts($cat_id) {

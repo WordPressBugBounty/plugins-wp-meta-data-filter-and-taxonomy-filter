@@ -30,6 +30,11 @@ class MetaDataFilterHtml extends MetaDataFilterCore
 //ajax
     public static function add_item_to_data_group()
     {
+        //admin screen of filter sections only
+        if (!current_user_can('edit_posts'))
+        {
+            wp_die('0');
+        }
         wp_die(self::render_html(self::get_application_path() . 'views/add_item_to_data_group.php'));
     }
 
@@ -135,23 +140,22 @@ class MetaDataFilterHtml extends MetaDataFilterCore
 
                 $tax_query_array = array();
                 //+++
-                $mdf_tax_bool = isset($_REQUEST['mdf_tax_bool']) ? sanitize_text_field($_REQUEST['mdf_tax_bool']) : 'AND';
+                //AND/OR between taxonomies travels inside page_mdf like the meta one
+                $mdf_tax_bool = self::get_mdf_tax_bool($widget_options);
 
                 if (isset($page_meta_data_filter['taxonomy']))
                 {
                     $tax_query_array = self::get_tax_query_array($page_meta_data_filter['taxonomy']);
                 }
+                $mdf_visitor_tax = $tax_query_array;
                 $tax_query_array = apply_filters('mdf_filter_taxonomies2', $tax_query_array);
                 //+++
+                //service conditions are always required, whatever AND/OR is selected for the visitor conditions
+                $mdf_service_meta = array();
                 //AND empty($tax_query_array) - if only taxonomies in search form
                 if (isset($_REQUEST['mdf_cat']))
                 {
                     $tmp_add = true;
-
-                    if (empty($meta_query_array))
-                    {
-                        $tmp_add = true;
-                    }
 
                     $hide_meta_filter_values = isset($widget_options['hide_meta_filter_values']) ? $widget_options['hide_meta_filter_values'] : false;
                     if ($hide_meta_filter_values)
@@ -163,7 +167,7 @@ class MetaDataFilterHtml extends MetaDataFilterCore
                     {
                         if (isset($_REQUEST['mdf_cat']) AND $_REQUEST['mdf_cat'] > 0)
                         {
-                            $meta_query_array[] = array(
+                            $mdf_service_meta[] = array(
                                 'key' => "meta_data_filter_cat",
                                 'value' => (int)$_REQUEST['mdf_cat'],
                                 'compare' => '='
@@ -172,12 +176,7 @@ class MetaDataFilterHtml extends MetaDataFilterCore
                     }
                 }
 
-
-                $meta_data_filter_bool = isset($_REQUEST['meta_data_filter_bool']) ? sanitize_text_field($_REQUEST['meta_data_filter_bool']) : 'AND';
-                if (!empty($meta_query_array))
-                {
-                    $meta_query_array = array_merge(array('relation' => $meta_data_filter_bool), $meta_query_array);
-                }
+                $meta_data_filter_bool = self::get_meta_data_filter_bool($widget_options);
 
                 //for WOOCOMMERCE hidden products ***
                 if ($slug == 'product' AND class_exists('WooCommerce'))
@@ -189,62 +188,46 @@ class MetaDataFilterHtml extends MetaDataFilterCore
                             'terms' => array('exclude-from-catalog'),
                             'operator' => 'NOT IN',
                         );
-                        
+
                     }elseif (version_compare(WOOCOMMERCE_VERSION, '3.0', '<')) {
-                           $buffer = array(
-                                'key' => '_visibility',
-                                'value' => array('catalog', 'visible'),
-                                'compare' => 'IN'
-                            );
-                            if (empty($meta_query_array))
-                            {
-                                $meta_query_array = array_merge(array('relation' => $meta_data_filter_bool), $buffer);
-                            } else
-                            {
-                                $meta_query_array[] = $buffer;
-                            }
+                        $mdf_service_meta[] = array(
+                            'key' => '_visibility',
+                            'value' => array('catalog', 'visible'),
+                            'compare' => 'IN'
+                        );
                     }
-                   
+
 
                     //for out stock products
                     if (self::get_setting('exclude_out_stock_products'))
                     {
-                        $buffer = array(
+                        $mdf_service_meta[] = array(
                             'key' => '_stock_status',
                             'value' => array('instock'),
                             'compare' => 'IN'
                         );
-                        $meta_query_array[] = $buffer;
                     }
                     //***
                 }
 
                 //+++
                 //Trick - how to hide post from search
-                if (empty($meta_query_array))
-                {
-                    $meta_query_array = array_merge(array('relation' => $meta_data_filter_bool), array(
-                        'key' => 'mdf_hide_post',
-                        'value' => 'out',
-                        'compare' => 'NOT EXISTS'
-                    ));
-                } else
-                {
-                    $meta_query_array[] = array(
-                        'key' => 'mdf_hide_post',
-                        'value' => 'out',
-                        'compare' => 'NOT EXISTS'
-                    );
-                }
+                $mdf_service_meta[] = array(
+                    'key' => 'mdf_hide_post',
+                    'value' => 'out',
+                    'compare' => 'NOT EXISTS'
+                );
+
+                list($mdf_or_meta, $mdf_required_meta) = self::split_meta_query_array($meta_query_array, $filter_post_blocks_data, $meta_data_filter_bool);
+                $meta_query_array = self::wrap_meta_query($mdf_or_meta, $meta_data_filter_bool, array_merge($mdf_required_meta, $mdf_service_meta));
 
                 //***
 
 
 
-                if (!empty($tax_query_array))
-                {
-                    $tax_query_array = array_merge(array('relation' => $mdf_tax_bool), $tax_query_array);
-                }
+                //visitor taxonomies are joined by AND/OR, product_visibility and additional taxonomies are always required
+                list($mdf_visitor_tax, $mdf_required_tax) = self::split_tax_query_array($tax_query_array, $mdf_visitor_tax);
+                $tax_query_array = self::wrap_tax_query($mdf_visitor_tax, $mdf_tax_bool, $mdf_required_tax);
 
 
                 $args = array(
@@ -368,20 +351,13 @@ class MetaDataFilterHtml extends MetaDataFilterCore
                         );
                         
                     }elseif (version_compare(WOOCOMMERCE_VERSION, '3.0', '<')) {
-                           $buffer = array(
+                           $meta_query_array[] = array(
                                'key' => '_visibility',
                                'value' => array('catalog', 'visible'),
                                'compare' => 'IN'
                            );
-                           if (empty($meta_query_array))
-                           {
-                               $meta_query_array = array_merge(array('relation' => $meta_data_filter_bool), $buffer);
-                           } else
-                           {
-                               $meta_query_array[] = $buffer;
-                           }
                     }
-                    
+
                     //for out stock products
                     if (self::get_setting('exclude_out_stock_products'))
                     {
@@ -396,21 +372,13 @@ class MetaDataFilterHtml extends MetaDataFilterCore
                 }
                 //+++
                 //Trick - how to hide post from search
-                if (empty($meta_query_array))
-                {
-                    $meta_query_array = array_merge(array('relation' => $meta_data_filter_bool), array(
-                        'key' => 'mdf_hide_post',
-                        'value' => 'out',
-                        'compare' => 'NOT EXISTS'
-                    ));
-                } else
-                {
-                    $meta_query_array[] = array(
-                        'key' => 'mdf_hide_post',
-                        'value' => 'out',
-                        'compare' => 'NOT EXISTS'
-                    );
-                }
+                //static counters have one visitor condition only, so all conditions here are joined by AND
+                $meta_query_array[] = array(
+                    'key' => 'mdf_hide_post',
+                    'value' => 'out',
+                    'compare' => 'NOT EXISTS'
+                );
+                $meta_query_array = array_merge(array('relation' => 'AND'), $meta_query_array);
 
                 //***
 
@@ -493,6 +461,8 @@ class MetaDataFilterHtml extends MetaDataFilterCore
         }
         //+++
         $meta_query_array = array();
+        $filter_post_blocks_data = array();
+        $widget_options = array();
         if (!empty($page_meta_data_filter))
         {
             //here we get all data about meta keys in constructor!!!
@@ -528,7 +498,6 @@ class MetaDataFilterHtml extends MetaDataFilterCore
             {
                 unset($page_meta_data_filter['taxonomy']);
             }
-            $meta_data_filter_bool = isset($_REQUEST['meta_data_filter_bool']) ? sanitize_text_field($_REQUEST['meta_data_filter_bool']) : 'AND';
             //+++
             if (is_array($page_meta_data_filter))
             {
@@ -681,73 +650,71 @@ class MetaDataFilterHtml extends MetaDataFilterCore
                                 case 'slider':
 
                                     //slider
-                                    if ($meta_data_filter_bool != 'OR')
-                                    {//IMPORTANT! THIS IS FUSE! WITHOUT this: MODE 'OR' BREAK SQL EXEC
-                                        if (!isset($html_item_data['slider_range_value']))
+                                    //sliders are always required conditions (also in OR mode, where OR joins checkboxes only)
+                                    if (!isset($html_item_data['slider_range_value']))
+                                    {
+                                        $html_item_data['slider_range_value'] = 0;
+                                    }
+                                    if ($html_item_data['slider_range_value'] == 1)
+                                    {
+                                        //double value slider slider
+                                        list($single_val, $f) = explode('^', $value);
+
+                                        if ($single_val != 0)
                                         {
-                                            $html_item_data['slider_range_value'] = 0;
+                                            $meta_query_array[] = array(
+                                                'key' => $search_key,
+                                                'value' => $single_val,
+                                                'type' => 'DECIMAL',
+                                                'compare' => '<='
+                                            );
+
+                                            $meta_query_array[] = array(
+                                                'key' => $search_key . '_to',
+                                                'value' => $single_val,
+                                                'type' => 'DECIMAL',
+                                                'compare' => '>='
+                                            );
                                         }
-                                        if ($html_item_data['slider_range_value'] == 1)
-                                        {
-                                            //double value slider slider
-                                            list($single_val, $f) = explode('^', $value);
 
-                                            if ($single_val != 0)
-                                            {
-                                                $meta_query_array[] = array(
-                                                    'key' => $search_key,
-                                                    'value' => $single_val,
-                                                    'type' => 'DECIMAL',
-                                                    'compare' => '<='
-                                                );
-
-                                                $meta_query_array[] = array(
-                                                    'key' => $search_key . '_to',
-                                                    'value' => $single_val,
-                                                    'type' => 'DECIMAL',
-                                                    'compare' => '>='
-                                                );
-                                            }
-
-                                            //print_r($meta_query_array);exit;
-                                        } else
-                                        {
-                                            //usual 1 value slider
-                                            if(!is_string($value)){
-                                                    $value="1^100";
-                                            }
-                                            $min_max=explode('^', $value,2);
-                                            if(count($min_max)<1){
-                                                $min_max=array(1,100);
-                                            }
-                                            list($s, $f) = $min_max;
-                                            //+++
-                                            if(empty($html_item_data['slider']) OR !is_string($html_item_data['slider'])){
-                                                    $html_item_data['slider']="1^100";
-                                            }
-                                            list($min, $max) = explode('^', $html_item_data['slider']);
-                                            if (floatval($max) === floatval($s))
-                                            {//to make range +
-                                                $f = self::$max_int;
-                                            }
-
-                                            if (floatval($f) === floatval($max))
-                                            {
-                                                $f = self::$max_int;
-                                            }
-                                            //+++
-                                            //http://codex.wordpress.org/Class_Reference/WP_Meta_Query
-                                            /*
-                                              $meta_query_array[] = array(
-                                              'key'=>$search_key,
-                                              'value'=>array( (float) $s, (float) $f ),
-                                              'type'=>'DECIMAL',
-                                              'compare'=>'BETWEEN'
-                                              );
-                                             */
-
-                                            $meta_query_array[] = self::range_slider_multicontroller($widget_options['slug'], $search_key, (float) $s, (float) $f);
+                                        //print_r($meta_query_array);exit;
+                                    } else
+                                    {
+                                        //usual 1 value slider
+                                        if(!is_string($value)){
+                                                $value="1^100";
                                         }
+                                        $min_max=explode('^', $value,2);
+                                        if(count($min_max)<1){
+                                            $min_max=array(1,100);
+                                        }
+                                        list($s, $f) = $min_max;
+                                        //+++
+                                        if(empty($html_item_data['slider']) OR !is_string($html_item_data['slider'])){
+                                                $html_item_data['slider']="1^100";
+                                        }
+                                        list($min, $max) = explode('^', $html_item_data['slider']);
+                                        if (floatval($max) === floatval($s))
+                                        {//to make range +
+                                            $f = self::$max_int;
+                                        }
+
+                                        if (floatval($f) === floatval($max))
+                                        {
+                                            $f = self::$max_int;
+                                        }
+                                        //+++
+                                        //http://codex.wordpress.org/Class_Reference/WP_Meta_Query
+                                        /*
+                                          $meta_query_array[] = array(
+                                          'key'=>$search_key,
+                                          'value'=>array( (float) $s, (float) $f ),
+                                          'type'=>'DECIMAL',
+                                          'compare'=>'BETWEEN'
+                                          );
+                                         */
+
+                                        $meta_query_array[] = self::range_slider_multicontroller($widget_options['slug'], $search_key, (float) $s, (float) $f);
                                     }
                                     break;
 
@@ -828,6 +795,57 @@ class MetaDataFilterHtml extends MetaDataFilterCore
         //lets cache it
         $_GLOBALS['MDF_META_QUERY_ARRAY'] = array($meta_query_array, $filter_post_blocks_data, $widget_options);
         return $_GLOBALS['MDF_META_QUERY_ARRAY'];
+    }
+
+    /**
+     * Splits visitor conditions from get_meta_query_array() for wrap_meta_query().
+     * In AND mode nothing changes: all conditions are returned as they are, in the same order.
+     * In OR mode only checkbox/label conditions are OR-able, all other conditions (sliders, drop-downs,
+     * text inputs, calendars, range selects) stay required.
+     *
+     * @return array array($or_conditions, $required_conditions)
+     */
+    public static function split_meta_query_array($meta_query_array, $filter_post_blocks_data, $meta_data_filter_bool)
+    {
+        $meta_query_array = array_values((array) $meta_query_array);
+        if ($meta_data_filter_bool !== 'OR')
+        {
+            return array($meta_query_array, array());
+        }
+
+        //search key (reflected or own) => html item type
+        $types = array();
+        if (is_array($filter_post_blocks_data))
+        {
+            foreach ($filter_post_blocks_data as $key => $item)
+            {
+                if (!is_array($item) OR ! isset($item['type']))
+                {
+                    continue;
+                }
+                $search_key = $key;
+                if (isset($item['is_reflected']) AND $item['is_reflected'] == 1 AND ! empty($item['reflected_key']))
+                {
+                    $search_key = $item['reflected_key'];
+                }
+                $types[$search_key] = $item['type'];
+            }
+        }
+
+        $or_conditions = array();
+        $required_conditions = array();
+        foreach ($meta_query_array as $condition)
+        {
+            if (is_array($condition) AND isset($condition['key']) AND isset($types[$condition['key']]) AND in_array($types[$condition['key']], array('checkbox', 'label'), true))
+            {
+                $or_conditions[] = $condition;
+            } else
+            {
+                $required_conditions[] = $condition;
+            }
+        }
+
+        return array($or_conditions, $required_conditions);
     }
 
     public static function get_tax_query_array($taxonomies)

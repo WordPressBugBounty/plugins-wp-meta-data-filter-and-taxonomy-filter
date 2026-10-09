@@ -4,9 +4,16 @@ if (!defined('ABSPATH'))
 
 $checked_data = array();
 $name = array();
-if (isset($filter_data['taxonomy'])) {
+//the search data comes from the request: anything but an array is no search
+if (!is_array($filter_data)) {
+    $filter_data = array();
+}
+if (isset($filter_data['taxonomy']) AND is_array($filter_data['taxonomy'])) {
 
     foreach ($filter_data['taxonomy'] as $html_item => $tax_type) {
+        if (!is_array($tax_type)) {
+            continue;
+        }
 
         foreach ($tax_type as $key => $val) {
             if (empty($val)) {
@@ -18,7 +25,8 @@ if (isset($filter_data['taxonomy'])) {
                     if ($term_id < 1) {
                         continue;
                     }
-                    $tax_name = get_term_by('id', $term_id, $key)->name;
+                    $term = get_term_by('id', $term_id, $key);
+                    $tax_name = $term ? $term->name : '';
                     if ($tax_name) {
                         $select = "";
                         if ($html_item == "checkbox" OR $html_item == "multi_select") {
@@ -37,13 +45,14 @@ if (isset($filter_data['taxonomy'])) {
                     }
                 }
             } elseif ($val != -1) {
-                $tax_name = get_term_by('id', $val, $key)->name;
+                $term = get_term_by('id', $val, $key);
+                $tax_name = $term ? $term->name : '';
                 if ($tax_name) {
                     $select = "";
                     if ($html_item == "checkbox" OR $html_item == "multi_select") {
-                        $select = "input[value='" . $term_id . "']";
+                        $select = "input[value='" . $val . "']";
                     } elseif ($html_item == "select") {
-                        $select = "select option[value='" . $term_id . "']";
+                        $select = "select option[value='" . $val . "']";
                     }
 
                     $checked_data[] = array(
@@ -59,7 +68,7 @@ if (isset($filter_data['taxonomy'])) {
     }
 }
 
-if (!$filter_data OR!is_array($filter_data['filter_post_blocks'])) {
+if (!$filter_data OR !isset($filter_data['filter_post_blocks']) OR !is_array($filter_data['filter_post_blocks'])) {
     $filter_data['filter_post_blocks'] = array();
 }
 foreach ($filter_data['filter_post_blocks'] as $id) {
@@ -169,23 +178,26 @@ foreach ($filter_data['filter_post_blocks'] as $id) {
                 case "range_select":
                     $from = "";
                     $to = "";
+                    //a missing edge is empty, as reading it gave
+                    $range_from = isset($filter_data[$key]['from']) ? $filter_data[$key]['from'] : null;
+                    $range_to = isset($filter_data[$key]['to']) ? $filter_data[$key]['to'] : null;
 
-                    // if you want hide rang sellect without changes 
+                    // if you want hide rang sellect without changes
                     if (!empty($val['range_select'])) {
                         $range = array();
                         $range = explode("^", $val['range_select']);
-                        if ($filter_data[$key]['from'] == $range[0] AND $filter_data[$key]['to'] == $range[1]) {
+                        if ($range_from == $range[0] AND $range_to == (isset($range[1]) ? $range[1] : null)) {
                             break;
                         }
                     }
 
 
 
-                    if (!empty($filter_data[$key]['from'])) {
-                        $from = esc_html__("From:", 'meta-data-filter') . $val["range_select_prefix"] . $filter_data[$key]['from'] . $val["range_select_postfix"];
+                    if (!empty($range_from)) {
+                        $from = esc_html__("From:", 'meta-data-filter') . $val["range_select_prefix"] . $range_from . $val["range_select_postfix"];
                     }
-                    if (!empty($filter_data[$key]['to'])) {
-                        $to = esc_html__("to:", 'meta-data-filter') . $val["range_select_prefix"] . $filter_data[$key]['to'] . $val["range_select_postfix"];
+                    if (!empty($range_to)) {
+                        $to = esc_html__("to:", 'meta-data-filter') . $val["range_select_prefix"] . $range_to . $val["range_select_postfix"];
                     }
                     if (empty($from) AND empty($to)) {
                         break;
@@ -244,7 +256,7 @@ foreach ($filter_data['filter_post_blocks'] as $id) {
         ?>
         <div class="mdf_terms_panel"> <?php echo esc_html($item['name']) ?>
             <a class="mdf_panel_remove">
-                <span class="mdf_remove_icon" data-type="<?php echo esc_attr($item['type']) ?>" data-html="<?php echo esc_html($item['html_item']) ?>" data-select="<?php echo esc_html($data_select) ?>">
+                <span class="mdf_remove_icon" data-type="<?php echo esc_attr($item['type']) ?>" data-html="<?php echo esc_html(isset($item['html_item']) ? $item['html_item'] : '') ?>" data-select="<?php echo esc_html($data_select) ?>">
                     <img src="<?php echo MetaDataFilter::get_application_uri() ?>/images/failmark.png">
                 </span>
             </a>

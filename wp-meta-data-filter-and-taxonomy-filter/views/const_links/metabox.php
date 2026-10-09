@@ -30,7 +30,7 @@
                     <th scope="row" class="mdtf-red"><label><?php esc_html_e("ATTENTION", 'meta-data-filter') ?></label></th>
                     <td>
                         <fieldset>
-                            <?php esc_html_e("Link is inspired. Recreate this one on the front on the same browser!", 'meta-data-filter') ?>
+                            <?php esc_html_e("Link is expired. Recreate this one on the front on the same browser!", 'meta-data-filter') ?>
                         </fieldset>
                     </td>
                 </tr>

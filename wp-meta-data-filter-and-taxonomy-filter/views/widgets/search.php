@@ -1,10 +1,40 @@
 <?php if (!defined('ABSPATH')) die('No direct access allowed'); ?>
 <?php
+//options a widget has not saved yet (a new widget in the block widgets editor) are empty, as reading the missing keys gave
+foreach (array('hide_meta_filter_values', 'hide_tax_filter_values', 'meta_data_filter_cat', 'meta_data_filter_slug', 'show_found_totally', 'taxonomies_options_post_recount_dyn', 'taxonomies_options_hide_terms_0', 'act_without_button', 'title_for_filter_button', 'show_reset_button', 'reset_link', 'ajax_items_recount') as $mdf_instance_key)
+{
+    if (!isset($instance[$mdf_instance_key]))
+    {
+        $instance[$mdf_instance_key] = null;
+    }
+}
 //do not show form if such params
 if ($instance['hide_meta_filter_values'] == 'true' AND $instance['hide_tax_filter_values'] == 'true')
 {
     return false;
 }
+
+//the search on the page belongs to another widget or form (other post type or filter category, not offered by this widget):
+//this widget is drawn as if there were no search
+$mdf_foreign_search = false;
+if (self::is_page_mdf_data())
+{
+    $mdf_search_data = self::get_page_mdf_data();
+    $mdf_search_options = (isset($mdf_search_data['mdf_widget_options']) AND is_array($mdf_search_data['mdf_widget_options'])) ? $mdf_search_data['mdf_widget_options'] : array();
+    $mdf_search_slug = isset($mdf_search_options['slug']) ? (string) $mdf_search_options['slug'] : '';
+    $mdf_search_cat = !empty($mdf_search_options['meta_data_filter_cat']) ? (int) $mdf_search_options['meta_data_filter_cat'] : (isset($_REQUEST['mdf_cat']) ? (int) $_REQUEST['mdf_cat'] : 0);
+    $mdf_own_cats = array((int) $instance['meta_data_filter_cat']);
+    if (isset($instance['filter_categories_addit']) AND is_array($instance['filter_categories_addit']))
+    {
+        $mdf_own_cats = array_merge($mdf_own_cats, array_map('intval', array_keys($instance['filter_categories_addit'])));
+    }
+    //a search without the post type or the category (older links) stays shown, as before
+    if (($mdf_search_slug !== '' AND $mdf_search_slug != (string) $instance['meta_data_filter_slug']) OR ($mdf_search_cat != 0 AND !in_array($mdf_search_cat, $mdf_own_cats, true)))
+    {
+        $mdf_foreign_search = true;
+    }
+}
+MetaDataFilterCore::$ignore_page_mdf_data = $mdf_foreign_search;
 
 //shows widget only with $_REQUEST['mdf_cat'] ID
 $show_widget = true;
@@ -77,7 +107,7 @@ if ($show_widget):
         //+++ using filter categories selector
         $meta_data_filter_cat = $instance['meta_data_filter_cat'];
         $_REQUEST['meta_data_filter_cat_form'] = $meta_data_filter_cat;
-        if (isset($_REQUEST['mdf_cat']))
+        if (isset($_REQUEST['mdf_cat']) AND !$mdf_foreign_search)
         {
             $instance['meta_data_filter_cat'] = $meta_data_filter_cat = (int)$_REQUEST['mdf_cat'];
         }
@@ -114,7 +144,7 @@ if ($show_widget):
         }
         ?>
 
-        <?php if (isset($_REQUEST['meta_data_filter_count']) AND $instance['show_found_totally'] == 'true'): ?>
+        <?php if (isset($_REQUEST['meta_data_filter_count']) AND $instance['show_found_totally'] == 'true' AND !$mdf_foreign_search): ?>
             <i class="mdf_widget_found_count">
                 <?php
                 $show_items_count_text = sprintf(__('Found <span>%s</span> items', 'meta-data-filter'), (int)$_REQUEST['meta_data_filter_count']);
@@ -133,7 +163,7 @@ if ($show_widget):
 			$widget_id = '';
 		}
 		?>
-        <form method="get" action="" id="meta_data_filter_<?php echo esc_attr($uniqid) ?>" data-search-url="<?php echo esc_url_raw($search_url) ?>" data-unique-id="<?php echo esc_attr($uniqid) ?>" data-slug="<?php echo esc_attr($instance['meta_data_filter_slug']) ?>" data-sidebar-name="<?php echo esc_attr($sidebar_name) ?>" data-sidebar-id="<?php echo esc_attr($sidebar_id) ?>" data-widget-id="<?php echo esc_attr($widget_id) ?>" class="mdf_search_form mdf_widget_form <?php if ($instance['ajax_items_recount'] AND $instance['act_without_button']!='true'): ?>mdf_ajax_auto_recount<?php endif; ?> <?php if ($instance['ajax_items_recount'] AND $instance['act_without_button'] !='true' AND $ajax_results): ?>mdf_ajax_content_redraw<?php endif; ?>">
+        <form method="get" action="" id="meta_data_filter_<?php echo esc_attr($uniqid) ?>" data-search-url="<?php echo esc_attr($search_url) ?>" data-unique-id="<?php echo esc_attr($uniqid) ?>" data-slug="<?php echo esc_attr($instance['meta_data_filter_slug']) ?>" data-sidebar-name="<?php echo esc_attr($sidebar_name) ?>" data-sidebar-id="<?php echo esc_attr($sidebar_id) ?>" data-widget-id="<?php echo esc_attr($widget_id) ?>"<?php if (!empty($widget_redraw_data)): ?> data-widget-redraw="<?php echo esc_attr($widget_redraw_data) ?>" data-widget-redraw-hash="<?php echo esc_attr($widget_redraw_hash) ?>"<?php endif; ?> class="mdf_search_form mdf_widget_form <?php if ($instance['ajax_items_recount'] AND $instance['act_without_button']!='true'): ?>mdf_ajax_auto_recount<?php endif; ?> <?php if ($instance['ajax_items_recount'] AND $instance['act_without_button'] !='true' AND $ajax_results): ?>mdf_ajax_content_redraw<?php endif; ?>">
             <div class="mdf_one_moment_txt">
                 <span><?php MetaDataFilterHtml::draw_tax_loader(); ?></span>
             </div>
@@ -141,43 +171,44 @@ if ($show_widget):
             <?php
             //+++
             echo MetaDataFilterPage::draw_front_page_items($instance, $uniqid);
-            $meta_data_filter_bool = 'AND';
-            if (isset($_GET['meta_data_filter_bool']))
-            {
-                $meta_data_filter_bool = MetaDataFilterCore::escape($_GET['meta_data_filter_bool']);
-            }
 			if(!isset($instance['and_or'])){
 				$instance['and_or'] = 'and';
 			}
 			if(!isset($instance['show_filter_button_after_each_block'])){
 				$instance['show_filter_button_after_each_block'] = false;
-			}			
-			
+			}
+			//AND/OR for meta fields: widget option, can be changed by the hook (shortcode ID is 0 for widgets)
+			$widget_and_or = strtoupper(trim((string) apply_filters('mdf_meta_data_filter_bool', strtoupper((string) $instance['and_or']), 0, $instance)));
             ?>
 
-            <?php if ($instance['and_or'] == 'BOTH'): ?>
+            <?php if ($widget_and_or == 'BOTH'): ?>
+                <?php
+                //the visitor selects the mode, keep the selection of the current search
+                $meta_data_filter_bool = 'AND';
+                if (self::is_page_mdf_data())
+                {
+                    $mdf_current_data = self::get_page_mdf_data();
+                    $meta_data_filter_bool = self::get_meta_data_filter_bool(isset($mdf_current_data['mdf_widget_options']) ? $mdf_current_data['mdf_widget_options'] : array());
+                } elseif (isset($_GET['meta_data_filter_bool']))
+                {
+                    $meta_data_filter_bool = self::normalize_meta_data_filter_bool($_GET['meta_data_filter_bool']);
+                }
+                ?>
                 <input type="radio" name="meta_data_filter_bool" value="OR" <?php if ($meta_data_filter_bool == 'OR'): ?>checked<?php endif; ?> />&nbsp;<?php esc_html_e("OR", 'meta-data-filter') ?>
                 &nbsp;&nbsp;&nbsp;
                 <input type="radio" name="meta_data_filter_bool" value="AND" <?php if ($meta_data_filter_bool == 'AND'): ?>checked<?php endif; ?> />&nbsp;<?php esc_html_e("AND", 'meta-data-filter') ?>
                 <br /><br />
+                <input type="hidden" name="mdf[mdf_widget_options][meta_data_filter_bool]" value="" />
             <?php else: ?>
-                <?php $meta_data_filter_bool = $instance['and_or']; ?>
-                <input type="hidden" name="meta_data_filter_bool" value="<?php echo esc_html($meta_data_filter_bool) ?>" />
+                <?php $meta_data_filter_bool = self::normalize_meta_data_filter_bool($widget_and_or); ?>
+                <input type="hidden" name="meta_data_filter_bool" value="<?php echo esc_attr($meta_data_filter_bool) ?>" />
+                <input type="hidden" name="mdf[mdf_widget_options][meta_data_filter_bool]" value="<?php echo esc_attr($meta_data_filter_bool) ?>" />
             <?php endif; ?>
 
 
             <?php
-            $mdf_tax_bool = 'AND';
-            if (isset($_GET['mdf_tax_bool']))
-            {
-                $mdf_tax_bool = MetaDataFilterCore::escape($_GET['mdf_tax_bool']);
-            } else
-            {
-                if (isset($instance['taxonomies_options_behaviour']))
-                {
-                    $mdf_tax_bool = $instance['taxonomies_options_behaviour'];
-                }
-            }
+            //AND/OR between taxonomies: widget option, can be changed by the hook (shortcode ID is 0 for widgets)
+            $mdf_tax_bool = self::normalize_meta_data_filter_bool(apply_filters('mdf_tax_bool', self::get_widget_tax_bool($instance), 0, $instance));
             ?>
 
 
@@ -191,7 +222,8 @@ if ($show_widget):
             ?>
 
             <input type="hidden" class="hidden_page_mdf_for_ajax" value="<?php echo(self::is_page_mdf_data() ? self::get_page_mdf_string() : '') ?>" />
-            <input type="hidden" name="mdf_tax_bool" value="<?php echo esc_html($mdf_tax_bool) ?>" />
+            <input type="hidden" name="mdf_tax_bool" value="<?php echo esc_attr($mdf_tax_bool) ?>" />
+            <input type="hidden" name="mdf[mdf_widget_options][mdf_tax_bool]" value="<?php echo esc_attr($mdf_tax_bool) ?>" />
             <input type="hidden" name="mdf[mdf_widget_options][slug]" value="<?php echo esc_html($instance['meta_data_filter_slug']) ?>" />
             <input type="hidden" name="mdf[mdf_widget_options][meta_data_filter_cat]" value="<?php echo esc_html($meta_data_filter_cat) ?>" />
             <input type="hidden" name="mdf[mdf_widget_options][show_items_count_dynam]" value="<?php echo(isset($instance['show_items_count_dynam']) AND $instance['show_items_count_dynam'] == 'true' ? 1 : 0) ?>" />
@@ -232,6 +264,10 @@ if ($show_widget):
                             if (isset($_SERVER['SCRIPT_URI']))
                             {
                                 $reset_link = sanitize_text_field($_SERVER['SCRIPT_URI']);
+                            } else
+                            {
+                                //SCRIPT_URI is not set on every server: current URL without the search parameters
+                                $reset_link = remove_query_arg(array('slg', 'mdf_cat', 'page_mdf', 'mdf_page_num'));
                             }
                         }
                     }
@@ -272,3 +308,7 @@ if ($show_widget):
     }
     ?>
 <?php endif; ?>
+<?php
+//the next widget or form sees the search of the page again
+MetaDataFilterCore::$ignore_page_mdf_data = false;
+?>

@@ -581,7 +581,7 @@
                                             $var = $data['ajax_pagination']['title'];
                                         }
                                         ?>
-                                        <input type="text" class="regular-text" id="mdtf_label_51" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var)))) ?>" name="meta_data_filter_settings[ajax_pagination][title]" />
+                                        <input type="text" class="regular-text" id="mdtf_label_51" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))) ?>" name="meta_data_filter_settings[ajax_pagination][title]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e('The text/HTML to display before the list of pages.', 'meta-data-filter'); ?></p>
@@ -600,7 +600,7 @@
                                             $var = $data['ajax_pagination']['previouspage'];
                                         }
                                         ?>
-                                        <input type="text" class="regular-text" id="mdtf_label_52" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var)))) ?>" name="meta_data_filter_settings[ajax_pagination][previouspage]" />
+                                        <input type="text" class="regular-text" id="mdtf_label_52" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))) ?>" name="meta_data_filter_settings[ajax_pagination][previouspage]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e('The text/HTML to display for the previous page link.', 'meta-data-filter'); ?></p>
@@ -619,7 +619,7 @@
                                             $var = $data['ajax_pagination']['nextpage'];
                                         }
                                         ?>
-                                        <input type="text" class="regular-text" id="mdtf_label_53" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var)))) ?>" name="meta_data_filter_settings[ajax_pagination][nextpage]" />
+                                        <input type="text" class="regular-text" id="mdtf_label_53" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))) ?>" name="meta_data_filter_settings[ajax_pagination][nextpage]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e('The text/HTML to display for the next page link.', 'meta-data-filter'); ?></p>
@@ -638,7 +638,7 @@
                                             $var = $data['ajax_pagination']['before'];
                                         }
                                         ?>
-                                        <input type="text" class="regular-text" id="mdtf_label_54" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var)))) ?>" name="meta_data_filter_settings[ajax_pagination][before]" />
+                                        <input type="text" class="regular-text" id="mdtf_label_54" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))) ?>" name="meta_data_filter_settings[ajax_pagination][before]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e('The HTML markup to display before the pagination code.', 'meta-data-filter'); ?></p>
@@ -657,7 +657,7 @@
                                             $var = $data['ajax_pagination']['after'];
                                         }
                                         ?>
-                                        <input type="text" class="regular-text" id="mdtf_label_55" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var)))) ?>" name="meta_data_filter_settings[ajax_pagination][after]" />
+                                        <input type="text" class="regular-text" id="mdtf_label_55" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))) ?>" name="meta_data_filter_settings[ajax_pagination][after]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e('The HTML markup to display after the pagination code.', 'meta-data-filter'); ?></p>
@@ -676,7 +676,7 @@
                                             $var = $data['ajax_pagination']['range'];
                                         }
                                         ?>
-                                        <input type="text" class="regular-text" id="mdtf_label_56" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var)))) ?>" name="meta_data_filter_settings[ajax_pagination][range]" />
+                                        <input type="text" class="regular-text" id="mdtf_label_56" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))) ?>" name="meta_data_filter_settings[ajax_pagination][range]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e('The number of page links to show before and after the current page. Recommended value: 3', 'meta-data-filter'); ?></p>
@@ -695,7 +695,7 @@
                                             $var = $data['ajax_pagination']['anchor'];
                                         }
                                         ?>
-                                        <input type="text" class="regular-text" id="mdtf_label_57" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var)))) ?>" name="meta_data_filter_settings[ajax_pagination][anchor]" />
+                                        <input type="text" class="regular-text" id="mdtf_label_57" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))) ?>" name="meta_data_filter_settings[ajax_pagination][anchor]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e('The number of links to always show at beginning and end of pagination. Recommended value: 1', 'meta-data-filter'); ?></p>
@@ -715,7 +715,7 @@
                                             $var = $data['ajax_pagination']['gap'];
                                         }
                                         ?>
-                                        <input type="text" class="regular-text" id="mdtf_label_58" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var)))) ?>" name="meta_data_filter_settings[ajax_pagination][gap]" />
+                                        <input type="text" class="regular-text" id="mdtf_label_58" value="<?php echo wp_kses_post(wp_unslash(stripslashes(htmlspecialchars($var, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401)))) ?>" name="meta_data_filter_settings[ajax_pagination][gap]" />
                                     </label>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e('The minimum number of pages in a gap before an ellipsis (...) is added. Recommended value: 3', 'meta-data-filter'); ?></p>
@@ -1175,7 +1175,7 @@
                             <th scope="row"><label for="custom_css_code"><?php esc_html_e("Custom CSS code", 'meta-data-filter') ?></label></th>
                             <td>
                                 <fieldset>
-                                    <textarea name="meta_data_filter_settings[custom_css_code]" id="custom_css_code"><?php echo esc_textarea(isset($data['custom_css_code']) ? stripcslashes($data['custom_css_code']) : $data['custom_css_code']); ?></textarea>
+                                    <textarea name="meta_data_filter_settings[custom_css_code]" id="custom_css_code"><?php echo esc_textarea(isset($data['custom_css_code']) ? stripcslashes($data['custom_css_code']) : ''); ?></textarea>
                                 </fieldset>
                                 <p class="description"><?php esc_html_e("If you are need to customize something and you don't want to lose your changes after update", 'meta-data-filter') ?></p>
                             </td>

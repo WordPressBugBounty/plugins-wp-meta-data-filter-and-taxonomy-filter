@@ -111,7 +111,7 @@
                                                 <?php
                                                 if (!empty($reflected_key))
                                                 {
-                                                    echo get_post_meta($post_id, $reflected_key, TRUE);
+                                                    echo esc_html(get_post_meta($post_id, $reflected_key, TRUE));
                                                 } else
                                                 {
                                                     esc_html_e('key is empty, please check filter data!', 'meta-data-filter');
@@ -411,7 +411,7 @@
                                                 <?php
                                                 if (!empty($reflected_key))
                                                 {
-                                                    echo get_post_meta($post_id, $reflected_key, TRUE);
+                                                    echo esc_html(get_post_meta($post_id, $reflected_key, TRUE));
                                                 } else
                                                 {
                                                     esc_html_e('key is empty, please check filter data!', 'meta-data-filter');
@@ -495,7 +495,7 @@
                                         <?php
                                         if (!empty($reflected_key))
                                         {
-                                            echo get_post_meta($post_id, $reflected_key, TRUE);
+                                            echo esc_html(get_post_meta($post_id, $reflected_key, TRUE));
                                         } else
                                         {
                                             esc_html_e('key is empty, please check filter data!', 'meta-data-filter');
