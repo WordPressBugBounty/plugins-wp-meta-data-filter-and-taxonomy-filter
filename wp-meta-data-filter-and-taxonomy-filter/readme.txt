@@ -5,7 +5,7 @@ Tags: filter,products filter,taxonomies filter,meta filter,woocommerce
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 
 The main idea of the plugin – make your WordPress site content is filterable and searchable by meta fields and taxonomies on the same time.
 
@@ -177,8 +177,10 @@ R: You can report security bugs through the Patchstack Vulnerability Disclosure 
 
 == Changelog ==
 
-= 1.4.0 =
+= 1.4.1 =
+* Security fix, thanks to Ananda Dhakal and Patchstack
 
+= 1.4.0 =
 * Fixed: 2 security issues, thanks to Ananda Dhakal, Peter Tang and Patchstack
 * Fixed: AND/OR behaviour for meta fields: OR now reaches every query of a search (results, item counters, ajax recount, ajax results redraw, pagination, sorting). The mode travels with the search data, so widgets, the [mdf_search_form] shortcode and the [mdf_search_button] popup work in OR mode.
 * Fixed: OR mode joins only checkboxes (and labels) of the visitor: sliders, drop-downs, text inputs, the filter category, WooCommerce stock/visibility and "mdf_hide_post" always stay required. Posts of another filter category, hidden posts and hidden/out-of-stock products can no longer leak into OR results.
